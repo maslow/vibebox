@@ -1,6 +1,20 @@
 import { useLogto } from '@logto/rn';
+import { Platform } from 'react-native';
 
-const REDIRECT_URI = 'io.vibebox://callback';
+// Platform-specific redirect URIs
+const getRedirectUri = () => {
+    if (Platform.OS === 'web') {
+        // For web, use current origin + /callback
+        if (typeof window !== 'undefined') {
+            return `${window.location.origin}/callback`;
+        }
+        return 'http://localhost:8081/callback';
+    }
+    // For native platforms, use custom scheme
+    return 'io.vibebox://callback';
+};
+
+const REDIRECT_URI = getRedirectUri();
 
 export function useLogtoAuth() {
     const {

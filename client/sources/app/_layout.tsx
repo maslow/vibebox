@@ -27,6 +27,7 @@ import { StatusBarProvider } from '@/components/StatusBarProvider';
 import { monkeyPatchConsoleForRemoteLoggingForFasterAiAutoDebuggingOnlyInLocalBuilds } from '@/utils/remoteLogger';
 import { useUnistyles } from 'react-native-unistyles';
 import { AsyncLock } from '@/utils/lock';
+import { AuthGuard } from '@/components/AuthGuard';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -209,7 +210,9 @@ export default function RootLayout() {
                                     <CommandPaletteProvider>
                                         <RealtimeProvider>
                                             <HorizontalSafeAreaWrapper>
-                                                <SidebarNavigator />
+                                                <AuthGuard>
+                                                    <SidebarNavigator />
+                                                </AuthGuard>
                                             </HorizontalSafeAreaWrapper>
                                         </RealtimeProvider>
                                     </CommandPaletteProvider>

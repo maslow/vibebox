@@ -1,34 +1,35 @@
-import React, { useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import React from 'react';
 import { useLogtoAuth } from '@/hooks/useLogtoAuth';
-import { router } from 'expo-router';
+import { View, ActivityIndicator } from 'react-native';
+import LoginScreen from '@/app/(auth)/login';
 import { StyleSheet } from 'react-native-unistyles';
 
-interface AuthGuardProps {
-    children: React.ReactNode;
-}
-
-export function AuthGuard({ children }: AuthGuardProps) {
+/**
+ * Authentication Guard Component
+ *
+ * Checks Logto authentication status and renders:
+ * - Loading screen while checking auth
+ * - Login screen if not authenticated
+ * - Children (main app) if authenticated
+ */
+export function AuthGuard({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading } = useLogtoAuth();
 
-    useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            router.replace('/login');
-        }
-    }, [isAuthenticated, isLoading]);
-
+    // Show loading indicator while checking auth status
     if (isLoading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" />
+                <ActivityIndicator size="large" color="#fff" />
             </View>
         );
     }
 
+    // Show login screen if not authenticated
     if (!isAuthenticated) {
-        return null;
+        return <LoginScreen />;
     }
 
+    // User is authenticated, show main app
     return <>{children}</>;
 }
 
@@ -37,6 +38,6 @@ const styles = StyleSheet.create((theme) => ({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.groupped.background,
     },
 }));

@@ -76,3 +76,11 @@ server/.env.*.local
 
 # Prisma
 server/prisma/migrations/
+
+# Testing artifacts
+tmp/
+testing/tmp/
+test-screenshots/
+
+# Test artifacts
+test-screenshots/
