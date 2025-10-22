@@ -18,7 +18,7 @@ export default {
         runtimeVersion: "18",
         orientation: "default",
         icon: "./sources/assets/images/icon.png",
-        scheme: "vibebox",
+        scheme: "io.vibebox",
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
         notification: {

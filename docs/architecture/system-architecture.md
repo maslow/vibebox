@@ -57,8 +57,8 @@ Based on [CLAUDE.md](../../CLAUDE.md) and [ADR 001](../decisions/001-client-tech
 │  │  ┌─────────────────────────────────────────────────────┐ │ │
 │  │  │         Happy Integration Service                    │ │ │
 │  │  │  - Account Creation (via /v1/auth)                  │ │ │
-│  │  │  - SSH Automation                                    │ │ │
-│  │  │  - Web URL Generation                               │ │ │
+│  │  │  - SSH Automation (VibeBox configuration)           │ │ │
+│  │  │  - Connection Info Management                       │ │ │
 │  │  └─────────────────────────────────────────────────────┘ │ │
 │  └──────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
@@ -129,10 +129,11 @@ client/sources/
 ```
 
 **Key Design Decisions**:
+- **Based on happy-client**: Direct fork and customization, inheriting all core features (terminal, editor, Claude Code integration, encryption, sync)
 - Use Expo Router for file-based routing (similar to Next.js)
 - Simple state management (Zustand or Context API)
-- API calls through centralized service layer
-- Happy Client integration via WebView or deep linking
+- API calls through centralized service layer for VibeBox platform features
+- Direct WebSocket connection to Happy Server using token/secret authentication
 
 ### 3.2 Backend (Server)
 
@@ -192,7 +193,6 @@ export class HappyIntegration {
   // Core methods from zero-modification-solution.md
   async createAccount(platformUserId: string): Promise<HappyAccount>
   async configureVibeBox(vibeBoxIp: string, credentials: HappyAccount): Promise<void>
-  async getWebAccessUrl(platformUserId: string): Promise<string>
   async getMachineStatus(platformUserId: string): Promise<MachineStatus>
 }
 
@@ -203,6 +203,9 @@ export class VibeBoxService {
   async controlVibeBox(vibeBoxId: string, action: 'start'|'stop'|'restart'): Promise<void>
   async getConnectionInfo(vibeBoxId: string): Promise<ConnectionInfo>
 }
+
+// Note: VibeBox client (based on happy-client) directly connects to Happy Server
+// using token/secret stored in HappyAccount table. No web URL generation needed.
 ```
 
 ### 3.3 External Services Integration
@@ -443,15 +446,13 @@ Response: {
 Response: {
   vibeBox: VibeBox & {
     connectionInfo: {
-      happyWebUrl: string
-      sshCommand: string
+      ip: string
+      sshPort: number
+      sshCommand: string  // For advanced users who want direct SSH access
+      happyToken: string  // Client uses this to connect to Happy Server
+      happySecret: string // Client uses this to connect to Happy Server
     }
   }
-}
-
-// POST /api/vibeboxes/:id/connect
-Response: {
-  happyWebUrl: string
 }
 
 // POST /api/vibeboxes/:id/control
@@ -539,13 +540,54 @@ Response: {
    await ssh.execCommand('happy daemon start')
    ```
 
-3. **Web Access** (URL generation)
+3. **Client Connection** (Direct WebSocket connection)
    ```typescript
-   const happyWebUrl = new URL('https://web.happy.dev')
-   happyWebUrl.searchParams.set('token', happyToken)
-   happyWebUrl.searchParams.set('secret', happySecret)
-   happyWebUrl.searchParams.set('embedded', 'true')
+   // VibeBox client (based on happy-client) directly connects to Happy Server
+   // Client retrieves token/secret from backend API:
+   const { connectionInfo } = await api.getVibeBox(vibeBoxId)
+   const { happyToken, happySecret } = connectionInfo
+
+   // happy-client's built-in sync logic handles the connection
+   // No web URL needed - direct WebSocket connection to Happy Server
+   await happyClient.connect({
+     serverUrl: 'wss://api.happy.dev',
+     token: happyToken,
+     secret: happySecret
+   })
    ```
+
+**Architecture Notes**:
+
+VibeBox client is **not a wrapper or shell** - it's a direct fork and customization of happy-client. This means:
+
+✅ **Full Feature Inheritance**:
+- Complete terminal emulator (from happy-client)
+- Code editor with syntax highlighting (from happy-client)
+- Claude Code integration (from happy-client)
+- Real-time sync and encryption (from happy-client)
+- File system operations (from happy-client)
+
+✅ **Added Commercial Features**:
+- Subscription management UI
+- Payment flow integration
+- VibeBox instance management
+- Platform account system
+
+✅ **Single Unified Client**:
+- Users never leave the VibeBox app
+- No WebView embedding or external web pages
+- Native mobile experience throughout
+- Direct WebSocket connection to Happy Server
+
+❌ **What We Don't Do**:
+- ~~Embed Happy's web interface (web.happy.dev)~~
+- ~~Generate web URLs for user access~~
+- ~~Deep linking to external apps~~
+- ~~OAuth redirects to Happy's authentication~~
+
+The client connects directly to Happy Server using the same protocol as happy-cli and happy-web, but with a native mobile UI instead of a web interface.
+
+---
 
 ### 6.2 Payment Integration
 
@@ -856,3 +898,4 @@ SESSION_SECRET=
 **Document History**:
 - 2025-10-22: Initial draft created
 - 2025-10-22: Removed implementation phases, focused on architecture
+- 2025-10-22: **Major correction** - Removed WebView embedding misconception, clarified that VibeBox client is a direct fork of happy-client (not a wrapper/shell)

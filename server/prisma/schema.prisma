@@ -1,0 +1,64 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id           String           @id @default(cuid())
+    logtoId      String           @unique
+    email        String           @unique
+    name         String?
+    picture      String?
+    subscription SubscriptionTier @default(FREE)
+    createdAt    DateTime         @default(now())
+    updatedAt    DateTime         @updatedAt
+
+    happyAccounts HappyAccount[]
+    vibeBoxes     VibeBox[]
+
+    @@map("users")
+}
+
+model HappyAccount {
+    id          String   @id @default(cuid())
+    userId      String
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    happyToken  String // Encrypted
+    happySecret String // Encrypted
+    machineId   String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@map("happy_accounts")
+}
+
+model VibeBox {
+    id        String        @id @default(cuid())
+    userId    String
+    user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    name      String?
+    status    VibeBoxStatus @default(PROVISIONING)
+    ipAddress String?
+    sshPort   Int?
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+
+    @@map("vibe_boxes")
+}
+
+enum SubscriptionTier {
+    FREE
+    PRO
+    ENTERPRISE
+}
+
+enum VibeBoxStatus {
+    PROVISIONING
+    ACTIVE
+    INACTIVE
+    ERROR
+}

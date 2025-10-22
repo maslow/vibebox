@@ -6,6 +6,7 @@ import * as Fonts from 'expo-font';
 import { FontAwesome } from '@expo/vector-icons';
 import { AuthCredentials, TokenStorage } from '@/auth/tokenStorage';
 import { AuthProvider } from '@/auth/AuthContext';
+import { LogtoProvider } from '@/auth/LogtoProvider';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { initialWindowMetrics, SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -197,26 +198,28 @@ export default function RootLayout() {
     //
 
     let providers = (
-        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-            <KeyboardProvider>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                    <AuthProvider initialCredentials={initState.credentials}>
-                        <ThemeProvider value={navigationTheme}>
-                            <StatusBarProvider />
-                            <ModalProvider>
-                                <CommandPaletteProvider>
-                                    <RealtimeProvider>
-                                        <HorizontalSafeAreaWrapper>
-                                            <SidebarNavigator />
-                                        </HorizontalSafeAreaWrapper>
-                                    </RealtimeProvider>
-                                </CommandPaletteProvider>
-                            </ModalProvider>
-                        </ThemeProvider>
-                    </AuthProvider>
-                </GestureHandlerRootView>
-            </KeyboardProvider>
-        </SafeAreaProvider>
+        <LogtoProvider>
+            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                <KeyboardProvider>
+                    <GestureHandlerRootView style={{ flex: 1 }}>
+                        <AuthProvider initialCredentials={initState.credentials}>
+                            <ThemeProvider value={navigationTheme}>
+                                <StatusBarProvider />
+                                <ModalProvider>
+                                    <CommandPaletteProvider>
+                                        <RealtimeProvider>
+                                            <HorizontalSafeAreaWrapper>
+                                                <SidebarNavigator />
+                                            </HorizontalSafeAreaWrapper>
+                                        </RealtimeProvider>
+                                    </CommandPaletteProvider>
+                                </ModalProvider>
+                            </ThemeProvider>
+                        </AuthProvider>
+                    </GestureHandlerRootView>
+                </KeyboardProvider>
+            </SafeAreaProvider>
+        </LogtoProvider>
     );
     if (tracking) {
         providers = (

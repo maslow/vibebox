@@ -4,18 +4,22 @@
  * This module contains types shared between client and server
  */
 
-// User types
+// User types (matches Prisma schema)
 export interface PlatformUser {
   id: string;
+  logtoId: string;
   email: string;
   name?: string;
+  picture?: string;
+  subscription: 'FREE' | 'PRO' | 'ENTERPRISE';
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Happy account mapping
-export interface HappyAccountMapping {
-  platformUserId: string;
+// Happy account mapping (matches Prisma schema)
+export interface HappyAccount {
+  id: string;
+  userId: string;
   happyToken: string;
   happySecret: string;
   machineId?: string;
@@ -23,26 +27,26 @@ export interface HappyAccountMapping {
   updatedAt: Date;
 }
 
-// VibeBox server types
-export interface VibeServer {
+// VibeBox types (matches Prisma schema)
+export interface VibeBox {
   id: string;
   userId: string;
-  status: 'provisioning' | 'active' | 'inactive' | 'error';
+  name?: string;
+  status: 'PROVISIONING' | 'ACTIVE' | 'INACTIVE' | 'ERROR';
   ipAddress?: string;
   sshPort?: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Subscription types
-export interface Subscription {
-  id: string;
-  userId: string;
-  plan: 'basic' | 'pro' | 'enterprise';
-  status: 'active' | 'canceled' | 'past_due';
-  currentPeriodEnd: Date;
-  createdAt: Date;
-  updatedAt: Date;
+// VibeBox connection info (for client)
+export interface VibeBoxConnectionInfo {
+  vibeBoxId: string;
+  ipAddress: string;
+  sshPort: number;
+  sshCommand: string;
+  happyToken: string;
+  happySecret: string;
 }
 
 // API response types
