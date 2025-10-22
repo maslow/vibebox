@@ -1,8 +1,9 @@
 import React from 'react';
 import { useLogtoAuth } from '@/hooks/useLogtoAuth';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Platform } from 'react-native';
 import LoginScreen from '@/app/(auth)/login';
 import { StyleSheet } from 'react-native-unistyles';
+import { usePathname } from 'expo-router';
 
 /**
  * Authentication Guard Component
@@ -11,9 +12,19 @@ import { StyleSheet } from 'react-native-unistyles';
  * - Loading screen while checking auth
  * - Login screen if not authenticated
  * - Children (main app) if authenticated
+ *
+ * Special handling for OAuth callback route:
+ * - Allows /callback route to bypass auth check on web platform
+ * - This lets Logto SDK process the OAuth redirect before auth check
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading } = useLogtoAuth();
+    const pathname = usePathname();
+
+    // Allow callback route to bypass auth check (needed for OAuth redirect flow)
+    if (Platform.OS === 'web' && pathname === '/callback') {
+        return <>{children}</>;
+    }
 
     // Show loading indicator while checking auth status
     if (isLoading) {

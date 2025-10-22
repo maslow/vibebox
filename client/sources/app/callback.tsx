@@ -1,26 +1,34 @@
-import React, { useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { View, Text, ActivityIndicator, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 
 /**
- * OAuth callback handler for web platform
+ * OAuth callback handler
  *
- * This route handles the redirect from Logto after authentication.
- * The Logto SDK automatically processes the callback URL parameters.
+ * For web: Uses @logto/react's useHandleSignInCallback
+ * For native: Uses @logto/rn's automatic callback handling
  */
+
+// Import hooks conditionally based on platform
+const useCallbackHandler = Platform.OS === 'web'
+    ? require('@logto/react').useHandleSignInCallback
+    : () => ({ isLoading: false, isAuthenticated: false });
+
 export default function CallbackScreen() {
     const router = useRouter();
 
-    useEffect(() => {
-        // Give the Logto SDK time to process the callback
-        const timer = setTimeout(() => {
-            // After processing, redirect to home
-            router.replace('/(app)');
-        }, 2000);
+    // Use the callback handler
+    const { isLoading, isAuthenticated } = useCallbackHandler(() => {
+        console.log('✅ Sign-in callback completed!');
+        // Redirect to app after callback is processed
+        setTimeout(() => {
+            console.log('Redirecting to app...');
+            router.replace('/');
+        }, 100);
+    });
 
-        return () => clearTimeout(timer);
-    }, [router]);
+    console.log(`Callback state: isLoading=${isLoading}, isAuthenticated=${isAuthenticated}`);
 
     return (
         <View style={styles.container}>
