@@ -4,13 +4,14 @@ AI-powered coding server platform built on [Happy](https://github.com/slopus/hap
 
 ## Overview
 
-A commercial platform that provides subscription-based AI coding environments (Vibe Servers) with seamless Web/Mobile access.
+A **mobile-first** AI coding platform that provides subscription-based coding environments (Vibe Servers) with native mobile apps and web access. Differentiates from desktop-focused competitors by prioritizing mobile vibe coding experience.
 
 ### Core Value
 
+- **Mobile-First Experience**: Native iOS/Android apps optimized for mobile coding scenarios, with web as secondary platform
 - **Ready to Use**: Pre-configured with Claude Code, Happy CLI, and development tools
 - **Zero Config**: No need to manually configure API keys or development environment
-- **Remote Access**: Access from anywhere via Web/Mobile
+- **Seamless Access**: Single unified client across all platforms - no app switching or OAuth redirects
 - **Subscription-based**: Monthly/yearly subscription with included Claude API quota
 
 ## Technical Approach
@@ -114,6 +115,9 @@ See [docs/verification/guide.md](docs/verification/guide.md) for detailed guide.
 ### Design Phase
 - [Product Requirements (PRD)](docs/design/prd.md) - Core features and user journeys
 - [White Paper](docs/design/white-paper.md) - Project vision and requirements
+
+### Architecture Decisions
+- [ADR 001: Client Technology Stack](docs/decisions/001-client-technology-stack.md) - Mobile-first architecture rationale
 
 ### Research Phase
 - [Authentication System Analysis](docs/research/authentication-system-analysis.md) - In-depth analysis of Happy authentication

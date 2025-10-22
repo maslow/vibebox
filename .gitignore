@@ -1,7 +1,7 @@
-# Happy client repositories (reference only, not committed to main repo)
-happy-cli/
-happy-server/
-happy-client/
+# Happy reference repositories (reference only, not committed to main repo)
+reference/happy-cli/
+reference/happy-server/
+reference/happy-client/
 
 # Node.js
 node_modules/

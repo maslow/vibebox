@@ -1,29 +1,22 @@
 # CLAUDE.md
 
-This document defines the core methodology and philosophy for working with the Delta Engine project.
+This document defines the core methodology and philosophy for working with this project.
 
 **Language**: All documentation must be in English.
 
 ## Core Philosophy
-
-**Delta's Three Pillars:**
-1. **Everything is a Command** - All agent capabilities are external CLI programs
-2. **Environment as Interface** - Agents interact only through working directory
-3. **Composition Defines Intelligence** - Complex behaviors emerge from composing simple agents
 
 **Project Values:**
 - Simplicity > Features
 - Safety > Speed
 - Clarity > Cleverness
 - Recovery > Efficiency
-- Less > More (非必要不增加)
+- Less > More (Occam's Razor)
+- Experience > Purity - User experience over technical purity
+- Control > Dependency - Controllability over upstream dependency
 
-## Methodology Principles
-
-**High-level guidance, not low-level rules.**
-
-Overly specific instructions lead to mechanical execution.
-Clear principles enable intelligent adaptation.
+**Key Principle:**
+- Zero Modification > Custom Solutions - Prefer using existing tools and APIs as-is rather than forking and modifying
 
 ---
 
@@ -43,7 +36,7 @@ Every feature implementation requires three distinct documents that serve as the
 - NO implementation details
 - NO code
 
-**Location:** `docs/architecture/vX.Y-feature-name.md`
+**Location:** `docs/design/*.md`
 
 ### 2. Implementation Plan (How)
 **Purpose:** Break down the technical approach into manageable phases
@@ -53,7 +46,7 @@ Every feature implementation requires three distinct documents that serve as the
 - Each phase independently verifiable
 - Risk assessment and mitigation
 
-**Location:** `docs/architecture/vX.Y-implementation-plan.md`
+**Location:** `docs/implementation/*.md`
 
 ### 3. Test Document (Verify)
 **Purpose:** Independent quality gatekeeper
@@ -64,7 +57,7 @@ Every feature implementation requires three distinct documents that serve as the
 - **Role Separation:** Test validation should ideally be performed by someone other than the implementer (or through an independent review process) to maintain true independence
 - Defines what "done" actually means
 
-**Location:** `docs/architecture/vX.Y-test-plan.md`
+**Location:** `docs/verification/*.md`
 
 **Why Three Documents?**
 - Separates builder from validator (athlete vs referee) - the implementer creates, but ideally another party validates
@@ -149,7 +142,7 @@ These are the only rules that truly matter because violating them causes irrever
 **The Rule:** Tests are sacred - they judge the code, not vice versa
 
 **Requirements:**
-- Run `npm run test:all` for complete validation (NOT just `npm test`)
+- Run complete test suite for validation
 - NEVER say "tests passed" without full test run
 - NEVER modify tests to make them pass
 - Test failure = feature incomplete, period
@@ -191,52 +184,27 @@ Stop at the first "No" and reconsider.
 
 ## 📍 Quick Reference
 
+### Project Structure
+```
+├── client/         # Expo/React Native (sources/app, components, auth, sync)
+├── server/         # Next.js (app/api, app/admin)
+├── shared/         # Shared types
+└── docs/           # Three-Document Method
+    ├── design/           # Why & What
+    ├── research/         # Background research
+    ├── implementation/   # How (technical plans)
+    └── verification/     # Test scenarios
+```
+
 ### Essential Commands
 ```bash
-# Run agent
-delta run -m "Task description"         # Simple run
-delta run -i -m "Task"                  # Interactive mode
-delta continue --run-id <id>            # Resume run
-
-# Complete test validation
-npm run test:all                        # The ONLY way to verify
-
-# Debug
-delta list-runs                         # List all runs
-tail .delta/{run_id}/journal.jsonl      # Check progress
-cat .delta/{run_id}/metadata.json       # Check status
+# Client: yarn start/ios/android/web
+# Server: yarn dev/build/start
+# Git: git status/add/commit/push
 ```
 
-### Directory Structure
-```
-workspaces/
-└── W001/                               # Workspace
-    └── .delta/
-        └── {run_id}/                   # Each run (v1.10: no LATEST file)
-            ├── journal.jsonl           # Single source of truth
-            ├── metadata.json           # Run status
-            └── io/                     # Audit trail
-```
-
-### Current Version
-**v1.10** - Frontierless Workspace
-- Explicit run IDs (no LATEST file)
-- Concurrent agent support
-- Structured output formats
-
----
-
-## 📚 Where to Find Details
-
-This document focuses on methodology. Technical details live elsewhere:
-
-- **Code conventions** → Look at existing code
-- **API documentation** → `docs/api/`
-- **Testing philosophy** → `docs/TESTING.md`
-- **Incident history** → `.story/incidents/`
-- **Version history** → Git commits and tags
-
-Don't duplicate what can be found elsewhere. Link, don't copy.
+### Documentation Locations
+See `docs/{design,research,implementation,verification}/*.md`
 
 ---
 
@@ -250,5 +218,6 @@ Don't duplicate what can be found elsewhere. Link, don't copy.
 - Methodology over technology
 - Thinking over typing
 - Safety over speed
+- Zero modification over custom solutions
 
 Keep this file under 250 lines. If it grows larger, move details elsewhere.
