@@ -1,4 +1,4 @@
-# Happy 客户端仓库（仅作为参考，不提交到主仓库）
+# Happy client repositories (reference only, not committed to main repo)
 happy-cli/
 happy-server/
 happy-client/
@@ -9,9 +9,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
-yarn.lock
 
-# 临时文件
+# Temporary files
 *.log
 .DS_Store
 .env
@@ -25,20 +24,41 @@ yarn.lock
 *.swo
 *~
 
-# 系统文件
+# System files
 Thumbs.db
 
-# 构建产物
+# Build outputs
 dist/
 build/
 .next/
 out/
 
-# 测试覆盖率
+# Test coverage
 coverage/
 .nyc_output/
 
-# 调试
+# Expo (client/)
+client/.expo/
+client/android/
+client/ios/
+client/web-build/
+client/.expo-shared/
+
+# Next.js (server/)
+server/.next/
+server/out/
+server/public/sw.js
+server/public/workbox-*.js
+server/public/worker-*.js
+server/public/sw.js.map
+server/public/workbox-*.js.map
+server/public/worker-*.js.map
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

@@ -1,143 +1,186 @@
-# Happy - Vibe Server 商业化项目
+# Happy - Vibe Server
 
-基于 [Happy](https://github.com/slopus/happy) 开源项目（MIT License）构建的智能编程服务器商业化方案。
+AI-powered coding server platform built on [Happy](https://github.com/slopus/happy) open-source project (MIT License).
 
-## 项目概述
+## Overview
 
-本项目旨在构建一个商业化的"智能编程服务器"产品，让用户可以通过订阅方式获得预配置的 AI 编程环境（Vibe Server），并通过 Web/Mobile 端远程控制和使用。
+A commercial platform that provides subscription-based AI coding environments (Vibe Servers) with seamless Web/Mobile access.
 
-### 核心价值
+### Core Value
 
-- **开箱即用**：预装 Claude Code、Happy CLI、Web 开发栈
-- **零配置**：用户无需手动配置 API Key 和开发环境
-- **远程访问**：通过 Web/Mobile 端随时随地使用
-- **订阅制**：按月/年订阅，包含固定的 Claude API 用量
+- **Ready to Use**: Pre-configured with Claude Code, Happy CLI, and development tools
+- **Zero Config**: No need to manually configure API keys or development environment
+- **Remote Access**: Access from anywhere via Web/Mobile
+- **Subscription-based**: Monthly/yearly subscription with included Claude API quota
 
-## 技术方案
+## Technical Approach
 
-本项目采用**零二开方案**（Zero Modification Solution），核心理念是：
+**Zero Modification Solution** - Core principles:
 
-- ✅ **不修改 happy-server** - 完全使用原生 API
-- ✅ **不修改 happy-cli** - 通过配置文件方式集成
-- ✅ **仅定制 happy-web** - 添加 URL 参数自动登录功能
+- ✅ **No modification to happy-server** - Uses native API only
+- ✅ **No modification to happy-cli** - Integration via configuration files
+- ✅ **Customize client only** - Based on happy-client with enhancements
 
-详细方案请参阅 [docs/implementation/zero-modification-solution.md](docs/implementation/zero-modification-solution.md)
+See [docs/implementation/zero-modification-solution.md](docs/implementation/zero-modification-solution.md) for details.
 
-## 项目结构
+## Project Structure
 
 ```
 .
-├── docs/                          # 文档
-│   ├── design/                   # 设计文档
-│   │   ├── prd.md               # 产品需求文档
-│   │   └── white-paper.md       # 项目白皮书
-│   ├── research/                 # 调研文档
-│   │   ├── authentication-system-analysis.md    # 认证体系分析
-│   │   └── web-integration-analysis.md          # Web 集成方案
-│   ├── implementation/           # 实施方案
-│   │   └── zero-modification-solution.md        # 零二开方案
-│   └── verification/             # 验证文档
-│       ├── guide.md             # 验证指南
-│       └── results.md           # 验证结果
+├── client/                        # Expo/React Native client (based on happy-client)
+│   ├── sources/                  # Application code
+│   │   ├── app/                 # Expo Router pages
+│   │   ├── components/          # UI components
+│   │   ├── auth/                # Authentication
+│   │   ├── sync/                # Real-time sync
+│   │   └── platform/            # Commercial features (subscriptions, etc.)
+│   └── package.json
 │
-├── verify-happy-integration.js   # 验证脚本（重要工具）
+├── server/                        # Next.js backend
+│   ├── app/
+│   │   ├── api/                 # API Routes
+│   │   └── admin/               # Admin dashboard
+│   ├── lib/                     # Utilities
+│   ├── components/              # React components
+│   └── package.json
 │
-├── happy-cli/                     # Happy CLI 参考（git submodule/reference-only）
-├── happy-server/                  # Happy Server 参考
-└── happy-client/                  # Happy Client 参考
+├── shared/                        # Shared types between client and server
+│   └── types/
+│
+├── docs/                          # Documentation
+│   ├── design/                   # Design documents
+│   ├── research/                 # Research documents
+│   ├── implementation/           # Implementation plans
+│   └── verification/             # Verification documents
+│
+├── verify-happy-integration.js   # Verification script (important tool)
+│
+├── happy-cli/                     # Happy CLI reference (excluded in .gitignore)
+├── happy-server/                  # Happy Server reference (excluded)
+└── happy-client/                  # Happy Client reference (excluded)
 ```
 
-## 快速开始
+## Quick Start
 
-### 环境要求
+### Requirements
 
 - Node.js >= 20
-- npm 或 yarn
+- Yarn (recommended)
 - Git
 
-### 验证方案可行性
-
-如果你想验证零二开方案的可行性，可以使用验证脚本：
+### Client (Expo/React Native)
 
 ```bash
-# 安装依赖
+cd client
+yarn install
+yarn start          # Start Expo development server
+yarn ios            # Run on iOS simulator
+yarn android        # Run on Android emulator
+yarn web            # Run in web browser
+```
+
+### Server (Next.js)
+
+```bash
+cd server
+yarn install
+yarn dev            # Start development server
+yarn build          # Build for production
+yarn start          # Start production server
+```
+
+### Verification Script
+
+To verify the zero-modification solution:
+
+```bash
+# Install dependencies
 npm install tweetnacl tweetnacl-util axios
 
-# 步骤1: 创建 Happy 账户
+# Step 1: Create Happy account
 node verify-happy-integration.js step1
 
-# 步骤2: 配置 CLI（按照步骤1的输出操作）
+# Step 2: Configure CLI (follow step1 output)
 node verify-happy-integration.js step2 --token "YOUR_TOKEN" --secret "YOUR_SECRET"
 
-# 步骤3: 生成 Web URL（按照步骤2的输出操作）
+# Step 3: Generate Web URL (follow step2 output)
 node verify-happy-integration.js step3 --token "YOUR_TOKEN" --secret "YOUR_SECRET"
 ```
 
-详细的验证指南请参阅 [docs/verification/guide.md](docs/verification/guide.md)
+See [docs/verification/guide.md](docs/verification/guide.md) for detailed guide.
 
-## 文档导航
+## Documentation
 
-### 设计阶段
-- [产品需求文档 (PRD)](docs/design/prd.md) - 定义核心功能和用户旅程
-- [项目白皮书](docs/design/white-paper.md) - 项目愿景和需求分析
+### Design Phase
+- [Product Requirements (PRD)](docs/design/prd.md) - Core features and user journeys
+- [White Paper](docs/design/white-paper.md) - Project vision and requirements
 
-### 调研阶段
-- [认证体系分析](docs/research/authentication-system-analysis.md) - Happy 认证机制深度分析
-- [Web 集成方案分析](docs/research/web-integration-analysis.md) - Web 端集成方案对比
+### Research Phase
+- [Authentication System Analysis](docs/research/authentication-system-analysis.md) - In-depth analysis of Happy authentication
+- [Web Integration Analysis](docs/research/web-integration-analysis.md) - Web integration approach comparison
 
-### 实施阶段
-- [零二开方案](docs/implementation/zero-modification-solution.md) - 完整的实施方案和代码
-- [验证指南](docs/verification/guide.md) - 手动验证步骤
-- [验证结果](docs/verification/results.md) - 验证成果报告
+### Implementation Phase
+- [Zero Modification Solution](docs/implementation/zero-modification-solution.md) - Complete implementation plan and code
+- [Verification Guide](docs/verification/guide.md) - Manual verification steps
+- [Verification Results](docs/verification/results.md) - Verification outcomes
 
-## 开发计划
+## Development Roadmap
 
-### Phase 1: 准备工作（已完成）
-- ✅ 技术调研
-- ✅ 方案设计
-- ✅ 可行性验证
+### Phase 1: Preparation (Completed)
+- ✅ Technical research
+- ✅ Solution design
+- ✅ Feasibility verification
+- ✅ Project structure initialization
 
-### Phase 2: 项目实施（进行中）
-- 🔄 项目代码组织讨论
-- ⏳ 前后端架构设计
-- ⏳ 核心功能开发
+### Phase 2: Implementation (In Progress)
+- 🔄 Client customization (based on happy-client)
+- ⏳ Backend API development
+- ⏳ Subscription system
+- ⏳ Admin dashboard
 
-### Phase 3: 部署上线（待定）
-- ⏳ 生产环境部署
-- ⏳ 用户测试
-- ⏳ 正式发布
+### Phase 3: Deployment (Pending)
+- ⏳ Production deployment
+- ⏳ User testing
+- ⏳ Official release
 
-## 技术栈
+## Tech Stack
 
-### 前端
-- React / Next.js（待定）
-- Happy Client（定制版）
+### Client
+- **Expo** (SDK 54) - React Native framework
+- **React Native** (0.81) - Cross-platform mobile development
+- **React Native Web** - Web platform support
+- **Expo Router** - File-based routing (similar to Next.js App Router)
+- **Unistyles** - Responsive styling system
 
-### 后端
-- Node.js / Python（待定）
-- Happy Server（官方版，无修改）
-- PostgreSQL
-- Redis
+### Server
+- **Next.js** (15) - React framework with API Routes
+- **TypeScript** - Type safety
+- **Axios** - HTTP client
+- **Zod** - Schema validation
 
-### 基础设施
-- Docker
-- Nginx
-- SSL/TLS
+### Infrastructure
+- **Happy Server** (Official, unmodified) - Core backend
+- **PostgreSQL** - Database
+- **Redis** - Cache and pub/sub
+- **Docker** - Containerization
+- **Nginx** - Reverse proxy
 
-## 参考资料
+## References
 
-- [Happy 官方仓库](https://github.com/slopus/happy)
-- [Happy 官方文档](https://github.com/slopus/happy/blob/main/CLAUDE.md)
+- [Happy Official Repository](https://github.com/slopus/happy)
+- [Happy Documentation](https://github.com/slopus/happy/blob/main/CLAUDE.md)
 - [Claude Code](https://www.anthropic.com/claude)
+- [Expo Documentation](https://docs.expo.dev/)
+- [Next.js Documentation](https://nextjs.org/docs)
 
-## 许可证
+## License
 
-本项目基于 MIT 许可证开源的 Happy 项目构建。
+Built on the MIT-licensed Happy project.
 
-## 联系方式
+## Contributing
 
-如有疑问或建议，请联系项目维护者。
+This project is currently in development. For questions or suggestions, please contact the project maintainers.
 
 ---
 
-**注意**: 本项目目前处于开发阶段，尚未发布生产版本。
+**Note**: This project is currently in development and not yet released for production use.
