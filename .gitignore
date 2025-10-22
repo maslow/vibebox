@@ -1,7 +1,9 @@
-# Happy reference repositories (reference only, not committed to main repo)
-reference/happy-cli/
-reference/happy-server/
-reference/happy-client/
+TODO.md
+
+# Upstream dependencies (reference only, not committed to main repo)
+upstream/happy-cli/
+upstream/happy-server/
+upstream/happy-client/
 
 # Node.js
 node_modules/

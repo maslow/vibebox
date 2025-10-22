@@ -189,6 +189,8 @@ Stop at the first "No" and reconsider.
 ├── client/         # Expo/React Native (sources/app, components, auth, sync)
 ├── server/         # Next.js (app/api, app/admin)
 ├── shared/         # Shared types
+├── upstream/       # Upstream dependencies source code (happy-*)
+│                   # For reference during vibe coding - DO NOT modify
 └── docs/           # Three-Document Method
     ├── design/           # Why & What
     ├── research/         # Background research

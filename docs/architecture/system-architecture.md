@@ -1,44 +1,44 @@
-# VibeBox System Architecture
+# VibeBox 系统架构
 
-**Version**: 1.0
-**Date**: 2025-10-22
-**Status**: Draft
-**Authors**: Fugen, Claude
-
----
-
-## 1. System Overview
-
-### 1.1 Vision
-
-VibeBox is a **mobile-first** AI coding platform that provides subscription-based coding environments (VibeBox instances) with native mobile apps and web access. Users can code with AI assistance anywhere, anytime, without complex setup.
-
-### 1.2 Core Value Proposition
-
-- **Mobile-First Experience**: Native iOS/Android apps optimized for mobile coding scenarios
-- **Zero Configuration**: Pre-configured Claude Code, Happy CLI, and development tools
-- **Seamless Access**: Single unified client across all platforms
-- **Subscription-based**: Monthly/yearly subscription with included Claude API quota
-
-### 1.3 Key Architecture Principles
-
-Based on [CLAUDE.md](../../CLAUDE.md) and [ADR 001](../decisions/001-client-technology-stack.md):
-
-- **Zero Modification > Custom Solutions**: Use Happy Server native API without modification
-- **Experience > Purity**: Frontend/backend separation is reasonable architecture
-- **Control > Dependency**: Deep customization capability for commercial needs
-- **Mobile-First**: React Native client as primary platform, web as secondary
-- **Simplicity > Features**: Start with simple auth, evolve later
+**版本**: 1.0
+**日期**: 2025-10-22
+**状态**: 草稿
+**作者**: Fugen, Claude
 
 ---
 
-## 2. System Architecture Diagram
+## 1. 系统概述
+
+### 1.1 愿景
+
+VibeBox 是一个**移动优先**的 AI 编码平台，提供基于订阅的编码环境（VibeBox 实例），配备原生移动应用和网页访问。用户可以在任何地点、任何时间使用 AI 辅助编码，无需复杂配置。
+
+### 1.2 核心价值主张
+
+- **移动优先体验**: 针对移动编码场景优化的原生 iOS/Android 应用
+- **零配置**: 预配置 Claude Code、Happy CLI 和开发工具
+- **无缝访问**: 跨所有平台的单一统一客户端
+- **订阅制**: 月付/年付订阅，包含 Claude API 配额
+
+### 1.3 核心架构原则
+
+基于 [CLAUDE.md](../../CLAUDE.md) 和 [ADR 001](../decisions/001-client-technology-stack.md)：
+
+- **零修改 > 自定义方案**: 使用 Happy Server 原生 API，不做修改
+- **体验 > 纯粹性**: 前后端分离是合理的架构
+- **控制权 > 依赖**: 为商业需求提供深度定制能力
+- **移动优先**: React Native 客户端为主要平台，Web 为辅助
+- **简单 > 功能**: 从简单认证开始，逐步演进
+
+---
+
+## 2. 系统架构图
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         User Devices                             │
+│                         用户设备                                  │
 │  ┌────────────────┐  ┌────────────────┐  ┌──────────────────┐  │
-│  │  iOS Native    │  │ Android Native │  │   Web Browser    │  │
+│  │  iOS 原生应用   │  │ Android 原生   │  │   Web 浏览器      │  │
 │  │  (React Native)│  │ (React Native) │  │  (react-native-  │  │
 │  │                │  │                │  │   web)           │  │
 │  └────────────────┘  └────────────────┘  └──────────────────┘  │
@@ -47,18 +47,18 @@ Based on [CLAUDE.md](../../CLAUDE.md) and [ADR 001](../decisions/001-client-tech
                     HTTPS/WebSocket
                               │
 ┌─────────────────────────────▼─────────────────────────────────┐
-│                    VibeBox Backend                             │
+│                    VibeBox 后端                                 │
 │  ┌──────────────────────────────────────────────────────────┐ │
 │  │              Next.js 15 (App Router)                      │ │
 │  │  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐ │ │
-│  │  │  Auth API    │  │  Subscription│  │  VibeBox       │ │ │
-│  │  │  Routes      │  │  API Routes  │  │  Management API│ │ │
+│  │  │  认证 API     │  │  订阅管理     │  │  VibeBox       │ │ │
+│  │  │  路由        │  │  API 路由     │  │  管理 API      │ │ │
 │  │  └──────────────┘  └──────────────┘  └────────────────┘ │ │
 │  │  ┌─────────────────────────────────────────────────────┐ │ │
-│  │  │         Happy Integration Service                    │ │ │
-│  │  │  - Account Creation (via /v1/auth)                  │ │ │
-│  │  │  - SSH Automation (VibeBox configuration)           │ │ │
-│  │  │  - Connection Info Management                       │ │ │
+│  │  │         Happy 集成服务                               │ │ │
+│  │  │  - 账户创建 (通过 /v1/auth)                          │ │ │
+│  │  │  - SSH 自动化 (VibeBox 配置)                        │ │ │
+│  │  │  - 连接信息管理                                      │ │ │
 │  │  └─────────────────────────────────────────────────────┘ │ │
 │  └──────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
@@ -67,79 +67,79 @@ Based on [CLAUDE.md](../../CLAUDE.md) and [ADR 001](../decisions/001-client-tech
             │                 │                 │
             ▼                 ▼                 ▼
 ┌───────────────────┐ ┌──────────────┐ ┌─────────────────┐
-│  PostgreSQL       │ │ Happy Server │ │  External       │
-│  Database         │ │ (Official)   │ │  Services       │
-│  - Users          │ │ - /v1/auth   │ │  - Payment      │
-│  - Subscriptions  │ │ - /v1/machines│ │    (WeChat/     │
-│  - VibeBoxes      │ │ - WebSocket  │ │     Stripe)     │
-│  - Happy Mappings │ │              │ │  - Email        │
+│  PostgreSQL       │ │ Happy Server │ │  外部服务        │
+│  数据库            │ │ (官方)       │ │  - 支付服务      │
+│  - 用户           │ │ - /v1/auth   │ │    (微信/        │
+│  - 订阅           │ │ - /v1/machines│ │     Stripe)     │
+│  - VibeBoxes      │ │ - WebSocket  │ │  - 邮件服务      │
+│  - Happy 映射     │ │              │ │                 │
 └───────────────────┘ └──────────────┘ └─────────────────┘
                               │
-                              │ SSH Automation
+                              │ SSH 自动化
                               ▼
                     ┌──────────────────┐
-                    │  VibeBox Pool    │
-                    │  (Cloud Servers) │
-                    │  - Pre-installed │
-                    │  - Happy Daemon  │
+                    │  VibeBox 资源池   │
+                    │  (云服务器)       │
+                    │  - 预装环境       │
+                    │  - Happy 守护进程 │
                     │  - Claude Code   │
                     └──────────────────┘
 ```
 
 ---
 
-## 3. Component Architecture
+## 3. 组件架构
 
-### 3.1 Frontend (Client)
+### 3.1 前端（客户端）
 
-**Technology**: Expo SDK 54 + React Native 0.81 + React Native Web
+**技术栈**: Expo SDK 54 + React Native 0.81 + React Native Web
 
-**Structure**:
+**目录结构**:
 ```
 client/sources/
-├── app/                          # Expo Router (file-based routing)
-│   ├── (auth)/                  # Authentication flow
-│   │   ├── login.tsx            # Login screen
-│   │   ├── register.tsx         # Register screen
-│   │   └── _layout.tsx          # Auth layout
-│   ├── (app)/                   # Main app (protected)
-│   │   ├── index.tsx            # Dashboard/VibeBox list
-│   │   ├── vibeboxes/           # VibeBox management
-│   │   │   ├── [id].tsx         # VibeBox detail
-│   │   │   └── connect.tsx      # Connect to Happy
-│   │   ├── subscriptions/       # Subscription management
-│   │   │   ├── plans.tsx        # Plan selection
-│   │   │   └── checkout.tsx     # Checkout flow
-│   │   └── _layout.tsx          # App layout (with nav)
-│   └── _layout.tsx              # Root layout
+├── app/                          # Expo Router (基于文件的路由)
+│   ├── (auth)/                  # 认证流程
+│   │   ├── login.tsx            # 登录页面
+│   │   ├── register.tsx         # 注册页面
+│   │   └── _layout.tsx          # 认证布局
+│   ├── (app)/                   # 主应用（受保护）
+│   │   ├── index.tsx            # 控制台/VibeBox 列表
+│   │   ├── vibeboxes/           # VibeBox 管理
+│   │   │   ├── [id].tsx         # VibeBox 详情
+│   │   │   └── connect.tsx      # 连接到 Happy
+│   │   ├── subscriptions/       # 订阅管理
+│   │   │   ├── plans.tsx        # 计划选择
+│   │   │   └── checkout.tsx     # 支付流程
+│   │   └── _layout.tsx          # 应用布局（带导航）
+│   └── _layout.tsx              # 根布局
 ├── components/
-│   ├── auth/                    # Auth components
-│   ├── vibebox/                 # VibeBox components
-│   │   ├── VibeBoxCard.tsx      # Instance card
-│   │   ├── ConnectButton.tsx    # Connect to Happy button
-│   │   └── StatusIndicator.tsx  # Status display
-│   └── subscription/            # Subscription components
+│   ├── auth/                    # 认证组件
+│   ├── vibebox/                 # VibeBox 组件
+│   │   ├── VibeBoxCard.tsx      # 实例卡片
+│   │   ├── ConnectButton.tsx    # 连接到 Happy 按钮
+│   │   └── StatusIndicator.tsx  # 状态显示
+│   └── subscription/            # 订阅组件
 ├── services/
-│   ├── api.ts                   # API client
-│   ├── auth.ts                  # Auth service
-│   └── vibebox.ts               # VibeBox service
-└── store/                       # State management (Zustand/Redux)
+│   ├── api.ts                   # API 客户端
+│   ├── auth.ts                  # 认证服务
+│   └── vibebox.ts               # VibeBox 服务
+└── store/                       # 状态管理 (Zustand/Redux)
     ├── authStore.ts
     └── vibeboxStore.ts
 ```
 
-**Key Design Decisions**:
-- **Based on happy-client**: Direct fork and customization, inheriting all core features (terminal, editor, Claude Code integration, encryption, sync)
-- Use Expo Router for file-based routing (similar to Next.js)
-- Simple state management (Zustand or Context API)
-- API calls through centralized service layer for VibeBox platform features
-- Direct WebSocket connection to Happy Server using token/secret authentication
+**关键设计决策**:
+- **基于 happy-client**: 直接 fork 和定制，继承所有核心功能（终端、编辑器、Claude Code 集成、加密、同步）
+- 使用 Expo Router 实现基于文件的路由（类似 Next.js）
+- 简单的状态管理（Zustand 或 Context API）
+- 通过集中式服务层调用 VibeBox 平台功能的 API
+- 使用 token/secret 认证直接 WebSocket 连接到 Happy Server
 
-### 3.2 Backend (Server)
+### 3.2 后端（服务器）
 
-**Technology**: Next.js 15 + TypeScript + PostgreSQL
+**技术栈**: Next.js 15 + TypeScript + PostgreSQL
 
-**Structure**:
+**目录结构**:
 ```
 server/
 ├── app/
@@ -152,36 +152,36 @@ server/
 │   │   ├── subscriptions/
 │   │   │   ├── plans/route.ts          # GET /api/subscriptions/plans
 │   │   │   ├── checkout/route.ts       # POST /api/subscriptions/checkout
-│   │   │   └── webhook/route.ts        # POST /api/subscriptions/webhook (payment callbacks)
+│   │   │   └── webhook/route.ts        # POST /api/subscriptions/webhook (支付回调)
 │   │   ├── vibeboxes/
-│   │   │   ├── route.ts                # GET /api/vibeboxes (list)
+│   │   │   ├── route.ts                # GET /api/vibeboxes (列表)
 │   │   │   ├── [id]/route.ts           # GET /api/vibeboxes/:id
 │   │   │   ├── [id]/connect/route.ts   # POST /api/vibeboxes/:id/connect
-│   │   │   └── [id]/control/route.ts   # POST /api/vibeboxes/:id/control (start/stop)
+│   │   │   └── [id]/control/route.ts   # POST /api/vibeboxes/:id/control (启动/停止)
 │   │   └── admin/
-│   │       └── provision/route.ts      # POST /api/admin/provision (internal)
+│   │       └── provision/route.ts      # POST /api/admin/provision (内部)
 │   └── layout.tsx
 ├── lib/
-│   ├── auth.ts                         # Session management
-│   ├── db.ts                           # Database client (Prisma/Drizzle)
-│   ├── payment/                        # Payment integration
-│   │   ├── types.ts                    # PaymentProvider interface
-│   │   ├── paymentService.ts           # Main payment service
-│   │   └── providers/                  # Provider implementations
-│   │       ├── wechatPayProvider.ts    # WeChat Pay
+│   ├── auth.ts                         # 会话管理
+│   ├── db.ts                           # 数据库客户端 (Prisma/Drizzle)
+│   ├── payment/                        # 支付集成
+│   │   ├── types.ts                    # PaymentProvider 接口
+│   │   ├── paymentService.ts           # 主支付服务
+│   │   └── providers/                  # 提供商实现
+│   │       ├── wechatPayProvider.ts    # 微信支付
 │   │       ├── stripeProvider.ts       # Stripe
-│   │       └── alipayProvider.ts       # Alipay
+│   │       └── alipayProvider.ts       # 支付宝
 │   └── happy/
-│       ├── integration.ts              # HappyIntegration class
-│       ├── ssh.ts                      # SSH automation
-│       └── types.ts                    # Happy-related types
+│       ├── integration.ts              # HappyIntegration 类
+│       ├── ssh.ts                      # SSH 自动化
+│       └── types.ts                    # Happy 相关类型
 ├── services/
-│   ├── authService.ts                  # Auth business logic
-│   ├── subscriptionService.ts          # Subscription logic
-│   ├── vibeboxService.ts               # VibeBox provisioning
-│   └── happyService.ts                 # Happy integration
-├── middleware.ts                        # Auth middleware
-└── prisma/                             # Database schema
+│   ├── authService.ts                  # 认证业务逻辑
+│   ├── subscriptionService.ts          # 订阅逻辑
+│   ├── vibeboxService.ts               # VibeBox 配置
+│   └── happyService.ts                 # Happy 集成
+├── middleware.ts                        # 认证中间件
+└── prisma/                             # 数据库模式
     └── schema.prisma
 ```
 
@@ -212,52 +212,52 @@ server/
 
 **Note**: VibeBox客户端（基于happy-client）直接通过WebSocket连接到Happy Server，使用存储在HappyAccount表中的token/secret认证。
 
-### 3.3 External Services Integration
+### 3.3 外部服务集成
 
-#### 3.3.1 Happy Server (Official)
+#### 3.3.1 Happy Server（官方）
 
-**Integration Points**:
-- `/v1/auth` - Account creation (challenge-signature auth)
-- `/v1/machines` - Machine registration (automatic)
-- WebSocket - Real-time communication (for future)
+**集成端点**:
+- `/v1/auth` - 账户创建（挑战-签名认证）
+- `/v1/machines` - 机器注册（自动）
+- WebSocket - 实时通信（未来）
 
-**Integration Strategy**: Zero Modification
-- Use official Happy Server API
-- No fork, no modification
-- Account mapping in VibeBox database
+**集成策略**: 零修改
+- 使用官方 Happy Server API
+- 不 fork，不修改
+- 在 VibeBox 数据库中映射账户
 
-#### 3.3.2 Payment Services
+#### 3.3.2 支付服务
 
-**Architecture**: Plugin-based payment provider system (see Section 6.2)
+**架构**: 插件化支付提供商系统（详见第 6.2 节）
 
-**Supported Providers**:
-- **WeChat Pay** - Primary for China market (QR code, native APP)
-- **Stripe** - Primary for international market (Checkout Session)
-- **Alipay** - Secondary for China market
+**支持的提供商**:
+- **微信支付** - 中国市场主要方式（QR 码、原生 APP）
+- **Stripe** - 国际市场主要方式（Checkout Session）
+- **支付宝** - 中国市场辅助方式
 
-**Common Integration Points**:
-- Order creation - Initiate payment flow
-- Callback/Webhook - Payment success notification
-- Order status query - Check payment status
-- Order cancellation - Handle refunds
+**通用集成端点**:
+- 订单创建 - 启动支付流程
+- 回调/Webhook - 支付成功通知
+- 订单状态查询 - 检查支付状态
+- 订单取消 - 处理退款
 
-**Key Webhook Events** (standardized across providers):
-- Payment success - Trigger VibeBox provisioning
-- Subscription renewal - Extend subscription period
-- Subscription cancellation - Handle cancellation
+**关键 Webhook 事件**（跨提供商标准化）:
+- 支付成功 - 触发 VibeBox 配置
+- 订阅续费 - 延长订阅周期
+- 订阅取消 - 处理取消
 
-#### 3.3.3 Email Service
+#### 3.3.3 邮件服务
 
-**Use Cases**:
-- Support channel (support@vibebox.com)
-- Manual subscription cancellation (MVP)
-- Future: Onboarding, notifications
+**使用场景**:
+- 支持渠道 (support@vibebox.com)
+- 手动订阅取消（MVP）
+- 未来: 引导流程、通知
 
 ---
 
-## 4. Data Model
+## 4. 数据模型
 
-### 4.1 Database Schema
+### 4.1 数据库模式
 
 ```prisma
 // prisma/schema.prisma
@@ -365,7 +365,7 @@ model Plan {
 }
 ```
 
-### 4.2 Entity Relationships
+### 4.2 实体关系
 
 ```
 User (1) ─── (0..1) HappyAccount
@@ -602,11 +602,11 @@ Plan (1) ─── (0..N) Subscription
 
 ---
 
-## 6. Integration Details
+## 6. 集成详情
 
-### 6.1 Happy Server Integration
+### 6.1 Happy Server 集成
 
-**Based on**: [Zero Modification Solution](../implementation/zero-modification-solution.md)
+**基于**: [零修改方案](../implementation/zero-modification-solution.md)
 
 #### 集成架构图
 
@@ -659,6 +659,12 @@ Plan (1) ─── (0..N) Subscription
 - 获得Happy平台的认证token
 - 将token和secret存储到数据库 `HappyAccount` 表
 - **关键**: 一个VibeBox平台用户 对应 一个Happy账户（1:1映射）
+
+**Token 有效期策略**：
+- ✅ **永久有效**：Happy Server 使用 `PersistentToken`（持久化令牌），无过期时间
+- ✅ **无需刷新**：一次性创建，长期使用
+- ✅ **简化架构**：无需实现 token 刷新机制和过期检测
+- ⚠️ **撤销机制**：如果需要撤销用户访问权限，可调用 Happy Server 的 `invalidateUserTokens` API（例如：用户主动注销、安全事件响应）
 
 **步骤2：VibeBox服务器自动配置（SSH automation）**
 
@@ -715,42 +721,42 @@ Plan (1) ─── (0..N) Subscription
 - ❌ 不依赖Happy非公开API
 - ✅ 完全基于官方文档的公开API
 
-**Architecture Notes**:
+**架构说明**:
 
-VibeBox client is **not a wrapper or shell** - it's a direct fork and customization of happy-client. This means:
+VibeBox 客户端**不是包装器或外壳** - 它是 happy-client 的直接 fork 和定制。这意味着：
 
-✅ **Full Feature Inheritance**:
-- Complete terminal emulator (from happy-client)
-- Code editor with syntax highlighting (from happy-client)
-- Claude Code integration (from happy-client)
-- Real-time sync and encryption (from happy-client)
-- File system operations (from happy-client)
+✅ **完整功能继承**:
+- 完整的终端模拟器（来自 happy-client）
+- 带语法高亮的代码编辑器（来自 happy-client）
+- Claude Code 集成（来自 happy-client）
+- 实时同步和加密（来自 happy-client）
+- 文件系统操作（来自 happy-client）
 
-✅ **Added Commercial Features**:
-- Subscription management UI
-- Payment flow integration
-- VibeBox instance management
-- Platform account system
+✅ **新增商业功能**:
+- 订阅管理 UI
+- 支付流程集成
+- VibeBox 实例管理
+- 平台账户系统
 
-✅ **Single Unified Client**:
-- Users never leave the VibeBox app
-- No WebView embedding or external web pages
-- Native mobile experience throughout
-- Direct WebSocket connection to Happy Server
+✅ **单一统一客户端**:
+- 用户不会离开 VibeBox 应用
+- 无 WebView 嵌入或外部网页
+- 全程原生移动体验
+- 直接 WebSocket 连接到 Happy Server
 
-❌ **What We Don't Do**:
-- ~~Embed Happy's web interface (web.happy.dev)~~
-- ~~Generate web URLs for user access~~
-- ~~Deep linking to external apps~~
-- ~~OAuth redirects to Happy's authentication~~
+❌ **我们不做的事**:
+- ~~嵌入 Happy 的 web 界面 (web.happy.dev)~~
+- ~~生成 web URL 供用户访问~~
+- ~~深度链接到外部应用~~
+- ~~OAuth 重定向到 Happy 的认证~~
 
-The client connects directly to Happy Server using the same protocol as happy-cli and happy-web, but with a native mobile UI instead of a web interface.
+客户端使用与 happy-cli 和 happy-web 相同的协议直接连接到 Happy Server，但使用原生移动 UI 而非 web 界面。
 
 ---
 
-### 6.2 Payment Integration
+### 6.2 支付集成
 
-**Architecture Design**: 插件化支付提供商系统，支持多市场多支付方式
+**架构设计**: 插件化支付提供商系统，支持多市场多支付方式
 
 #### 架构设计图
 
@@ -893,39 +899,39 @@ The client connects directly to Happy Server using the same protocol as happy-cl
 
 ---
 
-## 7. Security Considerations
+## 7. 安全考虑
 
-### 7.1 Authentication (MVP: Simple)
+### 7.1 认证（MVP：简单方案）
 
-**Strategy**: Username + Password with secure session management
+**策略**: 用户名 + 密码，配合安全会话管理
 
-**Implementation**:
-- Password hashing: bcrypt with salt rounds = 12
-- Session management: HTTP-only cookies + JWT
-- Session expiry: 7 days (configurable)
-- CSRF protection: Next.js built-in
+**实现**:
+- 密码哈希: bcrypt，salt rounds = 12
+- 会话管理: HTTP-only cookies + JWT
+- 会话过期: 7 天（可配置）
+- CSRF 保护: Next.js 内置
 
-**Future Migration to Logto**:
-- Keep user table structure compatible
-- Add `authProvider` field: "local" | "logto"
-- Migration script: existing users → Logto
+**未来迁移到 Logto**:
+- 保持用户表结构兼容
+- 添加 `authProvider` 字段: "local" | "logto"
+- 迁移脚本: 现有用户 → Logto
 
-### 7.2 API Security
+### 7.2 API 安全
 
-- All API routes protected by middleware
-- Rate limiting: 100 requests/minute per IP
-- Input validation: Zod schemas
-- SQL injection protection: Parameterized queries (Prisma)
+- 所有 API 路由由中间件保护
+- 限流: 每 IP 100 次请求/分钟
+- 输入验证: Zod schemas
+- SQL 注入防护: 参数化查询 (Prisma)
 
-### 7.3 Secrets Management
+### 7.3 密钥管理
 
-**Sensitive Data**:
-- User passwords: bcrypt hash
-- Root passwords: AES-256 encryption
-- Happy secrets: Encrypted at rest
-- Payment provider API keys: Environment variables
+**敏感数据**:
+- 用户密码: bcrypt hash
+- Root 密码: AES-256 加密
+- Happy secrets: 静态加密
+- 支付提供商 API 密钥: 环境变量
 
-**Environment Variables**:
+**环境变量**:
 ```env
 DATABASE_URL=
 HAPPY_SERVER_URL=
@@ -946,81 +952,81 @@ SESSION_SECRET=
 
 ---
 
-## 8. Technical Decisions Summary
+## 8. 技术决策总结
 
-| Decision | Choice | Rationale |
+| 决策 | 选择 | 理由 |
 |----------|--------|-----------|
-| **Client Framework** | Expo + React Native | Mobile-first, cross-platform, proven ([ADR 001](../decisions/001-client-technology-stack.md)) |
-| **Backend Framework** | Next.js 15 | API Routes, TypeScript, React ecosystem |
-| **Database** | PostgreSQL | Reliable, mature, good Prisma support |
-| **Auth (MVP)** | Username + Password | Simplicity, fast to implement, can migrate to Logto later |
-| **Happy Integration** | Zero Modification | Use official API, no fork needed |
-| **Payment** | Plugin-based (WeChat/Stripe/Alipay) | Multi-market support, China first (WeChat), international later (Stripe) |
-| **Deployment** | TBD | Docker + Cloud provider (AWS/GCP/DigitalOcean) |
+| **客户端框架** | Expo + React Native | 移动优先，跨平台，已验证 ([ADR 001](../decisions/001-client-technology-stack.md)) |
+| **后端框架** | Next.js 15 | API Routes，TypeScript，React 生态 |
+| **数据库** | PostgreSQL | 可靠，成熟，良好的 Prisma 支持 |
+| **认证 (MVP)** | 用户名 + 密码 | 简单，快速实现，可后续迁移到 Logto |
+| **Happy 集成** | 零修改 | 使用官方 API，无需 fork |
+| **支付** | 插件化 (微信/Stripe/支付宝) | 多市场支持，中国优先（微信），国际后续（Stripe） |
+| **部署** | TBD | Docker + 云服务商 (AWS/GCP/DigitalOcean) |
 
 ---
 
-## 9. Architecture Considerations
+## 9. 架构考虑
 
-### 9.1 VibeBox Resource Pool Management
+### 9.1 VibeBox 资源池管理
 
-**Hosting Options**:
-- Cloud providers: AWS EC2, DigitalOcean, Vultr, Linode, Tencent Cloud, Alibaba Cloud
-- Considerations: Cost, latency, regional availability
+**托管选项**:
+- 云服务商: AWS EC2, DigitalOcean, Vultr, Linode, 腾讯云, 阿里云
+- 考虑因素: 成本、延迟、区域可用性
 
-**Pool Management Strategies**:
-- **Pre-provisioned pool**: Keep N ready instances, faster provisioning but higher cost
-- **On-demand provisioning**: Create on payment success, slower but cost-effective
-- **Hybrid approach**: Small warm pool + on-demand scaling
+**资源池管理策略**:
+- **预配置资源池**: 保持 N 个就绪实例，配置更快但成本更高
+- **按需配置**: 支付成功后创建，较慢但成本效益高
+- **混合方案**: 小型热池 + 按需扩展
 
-**Architecture Impact**:
-- Database needs to track pool inventory
-- Background jobs for pool monitoring and health checks
-- Auto-scaling based on demand
+**架构影响**:
+- 数据库需要跟踪资源池库存
+- 后台任务进行资源池监控和健康检查
+- 基于需求的自动扩展
 
-### 9.2 Multi-Region & Market Support
+### 9.2 多区域和市场支持
 
-**Regional Deployment**:
-- **China Market**: Deploy on Alibaba Cloud / Tencent Cloud for better access
-  - Consider Happy Server latency and accessibility
-  - May need self-hosted Happy Server mirror
-- **International Markets**: AWS / GCP / DigitalOcean
-  - Distributed deployment for global low-latency access
+**区域部署**:
+- **中国市场**: 部署在阿里云/腾讯云以获得更好的访问
+  - 考虑 Happy Server 延迟和可访问性
+  - 可能需要自托管 Happy Server 镜像
+- **国际市场**: AWS / GCP / DigitalOcean
+  - 分布式部署实现全球低延迟访问
 
-**Data Sovereignty**:
-- User data stored in region where they registered
-- Cross-region replication considerations
-- Compliance with local regulations
+**数据主权**:
+- 用户数据存储在其注册的区域
+- 跨区域复制考虑
+- 遵守当地法规
 
-### 9.3 Scalability Design
+### 9.3 可扩展性设计
 
-**Database Scaling**:
-- Connection pooling (PgBouncer)
-- Read replicas for reporting and analytics
-- Partitioning strategy for large tables (subscriptions, vibeboxes)
+**数据库扩展**:
+- 连接池 (PgBouncer)
+- 用于报告和分析的只读副本
+- 大表的分区策略（订阅、vibeboxes）
 
-**Happy Server Scalability**:
-- Official Happy Server capacity limits
-- Potential need for multiple Happy Server instances
-- Load balancing strategy for Happy accounts
+**Happy Server 可扩展性**:
+- 官方 Happy Server 容量限制
+- 可能需要多个 Happy Server 实例
+- Happy 账户的负载均衡策略
 
-**VibeBox Resource Limits**:
-- Per-user resource quotas
-- Fair scheduling and resource allocation
-- Overflow handling strategy
+**VibeBox 资源限制**:
+- 每用户资源配额
+- 公平调度和资源分配
+- 溢出处理策略
 
-### 9.4 Monitoring & Observability
+### 9.4 监控和可观测性
 
-**Key Metrics**:
-- System health: API latency, error rates, database performance
-- Business metrics: Active subscriptions, VibeBox utilization, API quota usage
-- User experience: Client app performance, connection success rate
+**关键指标**:
+- 系统健康: API 延迟、错误率、数据库性能
+- 业务指标: 活跃订阅、VibeBox 利用率、API 配额使用
+- 用户体验: 客户端应用性能、连接成功率
 
-**Tooling Considerations**:
-- Error tracking: Sentry, Bugsnag, or similar
-- Logging: Structured logging (JSON), centralized aggregation
-- Metrics: Prometheus + Grafana, or cloud provider solutions
-- Alerting: Critical failures, payment issues, resource exhaustion
+**工具考虑**:
+- 错误跟踪: Sentry, Bugsnag 或类似工具
+- 日志: 结构化日志 (JSON)，集中聚合
+- 指标: Prometheus + Grafana，或云服务商方案
+- 告警: 关键故障、支付问题、资源耗尽
 
 ---
 
@@ -1059,15 +1065,16 @@ SESSION_SECRET=
 |------|------|------|------|
 | `/api/admin/provision` | POST | 配置VibeBox | 支付成功后触发 |
 
-**Note**:
+**注意**:
 - 所有API（除auth相关）需要认证（Bearer token或Session cookie）
-- 详细的Request/Response格式应在API规范文档中定义
+- 详细的Request/Response格式应在后续的"API规范文档"中定义
 - 本表仅供架构层面快速参考
 
 ---
 
-**Document History**:
-- 2025-10-22: Initial draft created
-- 2025-10-22: Removed implementation phases, focused on architecture
-- 2025-10-22: **Major correction** - Removed WebView embedding misconception, clarified that VibeBox client is a direct fork of happy-client (not a wrapper/shell)
-- 2025-10-22: **Major refactor** - Changed from code-focused to architecture-focused style: replaced API definitions and code samples with flowcharts, sequence diagrams, and architectural descriptions
+**文档历史**:
+- 2025-10-22: 初始草稿创建
+- 2025-10-22: 移除实施阶段，专注架构
+- 2025-10-22: **重大修正** - 移除 WebView 嵌入的误解，澄清 VibeBox 客户端是 happy-client 的直接 fork（非包装器/外壳）
+- 2025-10-22: **重大重构** - 从代码导向改为架构导向风格：用流程图、时序图和架构描述替代 API 定义和代码示例
+- 2025-10-22: **语言统一** - 将文档从中英混杂统一为中文
