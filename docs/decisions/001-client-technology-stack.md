@@ -3,20 +3,20 @@
 **Status**: Accepted
 **Date**: 2025-10-22
 **Deciders**: Fugen, Claude
-**Context**: Selecting the client-side technology stack for Happy Vibe Server commercial platform
+**Context**: Selecting the client-side technology stack for Happy VibeBox commercial platform
 
 ---
 
 ## Context and Problem Statement
 
-We need to choose the client-side technology stack for the Happy Vibe Server commercial platform. The platform aims to provide subscription-based AI coding environments with seamless access across Web and Mobile devices.
+We need to choose the client-side technology stack for the Happy VibeBox commercial platform. The platform aims to provide subscription-based AI coding environments with seamless access across Web and Mobile devices.
 
 Key requirements:
 - **Mobile-first approach**: Primary focus on mobile vibe coding scenarios (differentiating from desktop-focused competitors)
 - **Seamless user experience**: Users should stay within a single unified client, not jump between platforms or download additional apps
 - **Commercial control**: Need ability to fix bugs and optimize UX without depending on upstream happy-web updates
 - **Cross-platform support**: iOS, Android, and Web (desktop users)
-- **Deep customization**: Add subscription system, payment integration, account management, and Vibe Server management
+- **Deep customization**: Add subscription system, payment integration, account management, and VibeBox management
 
 ## Decision Drivers
 
@@ -199,7 +199,7 @@ happy/
 ### Phase 2: Commercial Features (Week 3-4)
 - Subscription and payment (integrate RevenueCat)
 - Account management (platform account + Happy account mapping)
-- Vibe Server management (list, status, connect)
+- VibeBox management (list, status, connect)
 
 ### Phase 3: Backend Development (Week 5)
 - Next.js API Routes

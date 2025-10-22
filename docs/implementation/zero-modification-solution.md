@@ -192,7 +192,7 @@ happy-server 自动创建 Account，返回 token
     ↓
 平台存储映射: platformUserId → (token, secret)
     ↓
-用户订阅 vibe server
+用户订阅 VibeBox
     ↓
 平台 SSH 到 server，写入 ~/.happy/access.key
     ↓
@@ -216,7 +216,7 @@ sequenceDiagram
     participant User as 用户
     participant Platform as 平台后端
     participant HappyServer as happy-server
-    participant VibeServer as Vibe Server
+    participant VibeServer as VibeBox
     participant CLI as happy-cli
     participant Web as happy-web
 
@@ -229,9 +229,9 @@ sequenceDiagram
     HappyServer-->>Platform: 返回 JWT token
     Platform->>Platform: 保存映射关系
 
-    User->>Platform: 3. 订阅 Vibe Server
+    User->>Platform: 3. 订阅 VibeBox
 
-    Note over Platform,VibeServer: 4. 配置 Vibe Server
+    Note over Platform,VibeServer: 4. 配置 VibeBox
     Platform->>VibeServer: SSH 连接
     Platform->>VibeServer: 安装 happy-cli
     Platform->>VibeServer: 写入 ~/.happy/access.key
@@ -291,11 +291,11 @@ class HappyIntegration:
         ssh_credentials: Dict[str, str]
     ) -> Dict[str, str]:
         """
-        为平台用户创建 Happy 账户并配置 vibe server
+        为平台用户创建 Happy 账户并配置 VibeBox
 
         Args:
             platform_user_id: 平台的用户ID
-            vibe_server_ip: Vibe Server 的 IP 地址
+            vibe_server_ip: VibeBox 的 IP 地址
             ssh_credentials: SSH 连接凭证 {'username': '...', 'password': '...'}
 
         Returns:
@@ -342,7 +342,7 @@ class HappyIntegration:
         # 3. 在平台数据库中存储映射关系
         self._save_mapping(platform_user_id, token, secret_b64)
 
-        # 4. SSH 到 vibe server，配置 happy credentials
+        # 4. SSH 到 VibeBox，配置 happy credentials
         self._configure_vibe_server(
             server_ip=vibe_server_ip,
             ssh_credentials=ssh_credentials,
@@ -380,8 +380,8 @@ class HappyIntegration:
         token: str,
         secret: str
     ):
-        """SSH 到 vibe server 配置 happy"""
-        print(f"[HAPPY] Configuring vibe server at {server_ip}")
+        """SSH 到 VibeBox 配置 happy"""
+        print(f"[HAPPY] Configuring VibeBox at {server_ip}")
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -454,7 +454,7 @@ CREDENTIALS_EOF''',
             print(f"[HAPPY] Vibe server configuration completed")
 
         except Exception as e:
-            raise Exception(f'Failed to configure vibe server: {e}')
+            raise Exception(f'Failed to configure VibeBox: {e}')
         finally:
             ssh.close()
 
@@ -556,7 +556,7 @@ happy = HappyIntegration(
 @login_required
 def provision_vibe_server():
     """
-    用户订阅 Vibe Server
+    用户订阅 VibeBox
 
     POST /api/vibe/provision
     {
@@ -611,7 +611,7 @@ def provision_vibe_server():
         })
 
     except Exception as e:
-        print(f"[ERROR] Failed to provision vibe server: {e}")
+        print(f"[ERROR] Failed to provision VibeBox: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -697,7 +697,7 @@ def get_vibe_status():
     account_info = happy.get_account_info(str(user_id))
     has_account = account_info is not None
 
-    # 检查 Vibe Server
+    # 检查 VibeBox
     server = VibeServer.query.filter_by(user_id=user_id).first()
     has_server = server is not None
 
@@ -768,7 +768,7 @@ CREATE INDEX idx_happy_mappings_user
 CREATE INDEX idx_happy_mappings_created
     ON happy_account_mappings(created_at DESC);
 
--- Vibe Server 表（如果还没有）
+-- VibeBox 表（如果还没有）
 CREATE TABLE vibe_servers (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -892,7 +892,7 @@ function VibeButton() {
                 disabled={provisioning}
                 className="vibe-button vibe-button-provision"
             >
-                {provisioning ? 'Provisioning...' : '🚀 Provision Vibe Server'}
+                {provisioning ? 'Provisioning...' : '🚀 Provision VibeBox'}
             </button>
         );
     }
@@ -970,7 +970,7 @@ function Dashboard() {
             <h1>Dashboard</h1>
 
             <div className="vibe-section">
-                <h2>Your Vibe Server</h2>
+                <h2>Your VibeBox</h2>
                 <p>Access your AI coding assistant from anywhere</p>
                 <VibeButton />
             </div>

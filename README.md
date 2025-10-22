@@ -1,10 +1,10 @@
-# Happy - Vibe Server
+# VibeBox
 
 AI-powered coding server platform built on [Happy](https://github.com/slopus/happy) open-source project (MIT License).
 
 ## Overview
 
-A **mobile-first** AI coding platform that provides subscription-based coding environments (Vibe Servers) with native mobile apps and web access. Differentiates from desktop-focused competitors by prioritizing mobile vibe coding experience.
+A **mobile-first** AI coding platform that provides subscription-based coding environments with native mobile apps and web access. Differentiates from desktop-focused competitors by prioritizing mobile vibe coding experience.
 
 ### Core Value
 

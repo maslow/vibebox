@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADR)
 
-This directory contains Architecture Decision Records (ADRs) for the Happy Vibe Server project.
+This directory contains Architecture Decision Records (ADRs) for the Happy VibeBox project.
 
 ## What is an ADR?
 

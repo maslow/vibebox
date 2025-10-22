@@ -1,6 +1,6 @@
-# Happy Vibe Server - Backend
+# VibeBox - Backend
 
-Next.js backend for Happy Vibe Server platform.
+Next.js backend for VibeBox platform.
 
 ## Features
 
@@ -42,7 +42,7 @@ server/
 
 - `/api/health` - Health check
 - `/api/auth/*` - Authentication endpoints
-- `/api/vibe/*` - Vibe server management
+- `/api/vibe/*` - VibeBox server management
 
 ## Environment Variables
 

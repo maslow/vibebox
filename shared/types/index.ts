@@ -1,5 +1,5 @@
 /**
- * Shared type definitions for Happy Vibe Server project
+ * Shared type definitions for VibeBox project
  *
  * This module contains types shared between client and server
  */
@@ -23,7 +23,7 @@ export interface HappyAccountMapping {
   updatedAt: Date;
 }
 
-// Vibe server types
+// VibeBox server types
 export interface VibeServer {
   id: string;
   userId: string;

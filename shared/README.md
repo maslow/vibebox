@@ -19,7 +19,7 @@ import type { PlatformUser, VibeServer } from '@/shared/types';
 ## Type Categories
 
 - **User types**: Platform user and account mappings
-- **Vibe server types**: Server status and configuration
+- **VibeBox server types**: Server status and configuration
 - **Subscription types**: Subscription plans and status
 - **API types**: Common API response formats
 - **Happy types**: Types from Happy ecosystem (credentials, machines, sessions)

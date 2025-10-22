@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Happy Vibe Server",
+  title: "VibeBox",
   description: "AI-powered coding server platform",
 };
 

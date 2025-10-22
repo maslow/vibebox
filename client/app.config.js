@@ -1,24 +1,24 @@
 const variant = process.env.APP_ENV || 'development';
 const name = {
-    development: "Happy (dev)",
-    preview: "Happy (preview)",
-    production: "Happy"
+    development: "VibeBox (dev)",
+    preview: "VibeBox (preview)",
+    production: "VibeBox"
 }[variant];
 const bundleId = {
-    development: "com.slopus.happy.dev",
-    preview: "com.slopus.happy.preview",
-    production: "com.ex3ndr.happy"
+    development: "com.vibebox.app.dev",
+    preview: "com.vibebox.app.preview",
+    production: "com.vibebox.app"
 }[variant];
 
 export default {
     expo: {
         name,
-        slug: "happy",
+        slug: "vibebox",
         version: "1.5.1",
         runtimeVersion: "18",
         orientation: "default",
         icon: "./sources/assets/images/icon.png",
-        scheme: "happy",
+        scheme: "vibebox",
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
         notification: {
