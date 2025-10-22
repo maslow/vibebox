@@ -118,6 +118,7 @@ See [docs/verification/guide.md](docs/verification/guide.md) for detailed guide.
 
 ### Architecture Decisions
 - [ADR 001: Client Technology Stack](docs/decisions/001-client-technology-stack.md) - Mobile-first architecture rationale
+- [ADR 002: Authentication Solution](docs/decisions/002-authentication-solution.md) - Logto authentication and authorization
 
 ### Research Phase
 - [Authentication System Analysis](docs/research/authentication-system-analysis.md) - In-depth analysis of Happy authentication
@@ -161,6 +162,12 @@ See [docs/verification/guide.md](docs/verification/guide.md) for detailed guide.
 - **TypeScript** - Type safety
 - **Axios** - HTTP client
 - **Zod** - Schema validation
+
+### Authentication
+- **Logto** - Open-source OIDC/OAuth 2.0 authentication platform
+  - Native Expo/React Native SDK
+  - Self-hosting option available
+  - RBAC and multi-tenant support
 
 ### Infrastructure
 - **Happy Server** (Official, unmodified) - Core backend

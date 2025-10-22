@@ -29,6 +29,11 @@ Each ADR follows this structure:
    - **Rationale**: Mobile-first positioning, three-platform unity, deep customization capability
    - **Status**: Accepted
 
+2. [002 - Authentication Solution Selection](./002-authentication-solution.md) (2025-10-22)
+   - **Decision**: Use Logto for authentication and authorization
+   - **Rationale**: Open-source, mobile-first native SDK, standard OIDC/OAuth protocols, cost-effective
+   - **Status**: Accepted
+
 ### Proposed Decisions
 
 None currently.
