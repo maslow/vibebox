@@ -1,0 +1,44 @@
+# Happy 客户端仓库（仅作为参考，不提交到主仓库）
+happy-cli/
+happy-server/
+happy-client/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# 临时文件
+*.log
+.DS_Store
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+Thumbs.db
+
+# 构建产物
+dist/
+build/
+.next/
+out/
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 调试
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
