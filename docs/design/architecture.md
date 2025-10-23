@@ -1,7 +1,7 @@
 # VibeBox 系统架构
 
-**版本**: 1.0
-**日期**: 2025-10-22
+**版本**: 1.1
+**日期**: 2025-10-23
 **状态**: 草稿
 **作者**: Fugen, Claude
 
@@ -30,7 +30,27 @@ VibeBox 是一个**移动优先**的 AI 编码平台，提供基于订阅的编�
 - **移动优先**: React Native 客户端为主要平台，Web 为辅助
 - **简单 > 功能**: 从简单认证开始，逐步演进
 
----
+**零修改原则的具体范围**:
+
+VibeBox 项目遵循"零修改"原则，但仅针对核心 Happy 基础设施：
+
+✅ **不修改的组件** (Zero Modification):
+- `happy-server`: 完全使用官方版本，不 fork，不修改源码
+- `happy-cli`: 完全使用官方版本，通过配置文件集成
+- Happy 协议和 API: 仅使用官方公开的 API（`/v1/auth`, `/v1/machines`, WebSocket）
+
+⚠️ **需要定制的组件** (Reasonable Customization):
+- `happy-client`: Fork 并定制，添加 VibeBox 商业功能
+  - 原因: 需要集成订阅管理、支付流程、VibeBox 实例管理等商业功能
+  - 策略: 保留所有核心功能（终端、编辑器、Claude Code 集成、加密、同步），仅添加平台特定 UI 和业务逻辑
+--  - 维护: 定期合并上游更新，最小化定制范围
+
+这种分离符合 CLAUDE.md 的核心理念：
+- **零修改**: 不改变 Happy 基础设施和协议
+- **控制权 > 依赖**: 对客户端体验有完全控制权
+- **体验 > 纯粹性**: 为用户提供商业级体验比保持纯粹的开源使用更重要
+
+-
 
 ## 2. 系统架构图
 
@@ -710,20 +730,34 @@ Plan (1) ─── (0..N) Subscription
 
 #### 零修改原则实现
 
-**使用官方API**:
-- `/v1/auth` - 标准的挑战-签名认证
+**零修改范围** (与 Section 1.3 一致):
+
+本方案严格遵循零修改原则，仅针对 Happy 核心基础设施：
+
+✅ **完全不修改的组件**:
+- `happy-server`: 使用官方版本和 Docker 镜像
+- `happy-cli`: 使用官方 npm 包
+- Happy 协议: 仅使用官方公开 API
+
+**使用的官方API**:
+- `/v1/auth` - 标准的挑战-签名认证，自动创建账户
 - `/v1/machines` - 机器自动注册
-- WebSocket - 标准连接协议
+- WebSocket - 标准连接协议，端到端加密
 
-**不做的事**:
-- ❌ 不修改Happy Server源码
-- ❌ 不fork Happy项目
-- ❌ 不依赖Happy非公开API
-- ✅ 完全基于官方文档的公开API
+**我们不做的事（Zero Modification）**:
+- ❌ 不修改 happy-server 源码或数据库 schema
+- ❌ 不 fork happy-server 或 happy-cli 项目
+- ❌ 不依赖 Happy 非公开 API 或内部实现细节
+- ❌ 不修改 Happy 协议或通信格式
+- ✅ 完全基于官方文档的公开 API 和标准配置
 
-**架构说明**:
+**客户端定制说明**:
 
-VibeBox 客户端**不是包装器或外壳** - 它是 happy-client 的直接 fork 和定制。这意味着：
+VibeBox 客户端是 happy-client 的**直接 fork 和合理定制**（非包装器或外壳）。这种定制是合理的，因为：
+
+1. **符合"控制权 > 依赖"原则**: 商业产品需要对用户体验有完全控制权
+2. **符合"体验 > 纯粹性"原则**: 为用户提供商业级体验比保持纯粹的开源使用更重要
+3. **不违反零修改原则**: 零修改仅适用于 Happy 基础设施（server/cli），不包括客户端 UI
 
 ✅ **完整功能继承**:
 - 完整的终端模拟器（来自 happy-client）
@@ -733,16 +767,16 @@ VibeBox 客户端**不是包装器或外壳** - 它是 happy-client 的直接 fo
 - 文件系统操作（来自 happy-client）
 
 ✅ **新增商业功能**:
-- 订阅管理 UI
-- 支付流程集成
-- VibeBox 实例管理
-- 平台账户系统
+- 订阅管理 UI（Logto 集成）
+- 支付流程集成（多支付提供商）
+- VibeBox 实例管理（启动/停止/重启）
+- 平台账户系统（用户 Dashboard）
 
 ✅ **单一统一客户端**:
 - 用户不会离开 VibeBox 应用
 - 无 WebView 嵌入或外部网页
 - 全程原生移动体验
-- 直接 WebSocket 连接到 Happy Server
+- 直接 WebSocket 连接到 Happy Server（与 happy-cli 相同协议）
 
 ❌ **我们不做的事**:
 - ~~嵌入 Happy 的 web 界面 (web.happy.dev)~~
@@ -750,7 +784,8 @@ VibeBox 客户端**不是包装器或外壳** - 它是 happy-client 的直接 fo
 - ~~深度链接到外部应用~~
 - ~~OAuth 重定向到 Happy 的认证~~
 
-客户端使用与 happy-cli 和 happy-web 相同的协议直接连接到 Happy Server，但使用原生移动 UI 而非 web 界面。
+**技术实现**:
+客户端使用与 happy-cli 和 happy-web 相同的协议直接连接到 Happy Server，使用从 VibeBox 后端获取的 token/secret 进行认证，但提供原生移动 UI 而非 web 界面。
 
 ---
 
@@ -901,20 +936,49 @@ VibeBox 客户端**不是包装器或外壳** - 它是 happy-client 的直接 fo
 
 ## 7. 安全考虑
 
-### 7.1 认证（MVP：简单方案）
+### 7.1 认证（基于 Logto）
 
-**策略**: 用户名 + 密码，配合安全会话管理
+**策略**: 基于 Logto 的 OIDC/OAuth 2.0 标准认证
 
-**实现**:
-- 密码哈希: bcrypt，salt rounds = 12
-- 会话管理: HTTP-only cookies + JWT
-- 会话过期: 7 天（可配置）
-- CSRF 保护: Next.js 内置
+**架构**:
+```
+客户端（Expo/React Native） ─────┐
+                              │ OIDC/OAuth 2.0
+                              ▼
+                        Logto Service
+                              │
+                              ▼
+                    VibeBox 后端（Next.js）
+                              │
+                              ▼
+                    Happy Server 集成
+```
 
-**未来迁移到 Logto**:
-- 保持用户表结构兼容
-- 添加 `authProvider` 字段: "local" | "logto"
-- 迁移脚本: 现有用户 → Logto
+**核心特性**:
+- **标准协议**: OIDC/OAuth 2.0，避免供应商锁定
+- **移动优先**: 原生 Expo SDK (`@logto/rn`)，非 WebView
+- **安全存储**: expo-secure-store 存储 token
+- **社交登录**: Google, Apple, GitHub 等
+- **企业级功能**: RBAC, MFA, 多租户支持
+- **订阅映射**: Logto 角色映射到订阅等级（free/pro/enterprise）
+
+**实现细节**:
+- Token 验证: JWT 验证，使用 Logto JWKS endpoint
+- 会话管理: JWT access token + refresh token
+- Token 过期: Access token 1小时，refresh token 14天
+- CSRF 保护: Next.js 内置 + OIDC state parameter
+- RBAC 角色:
+  - `free`: 基础订阅用户
+  - `pro`: 专业订阅用户
+  - `enterprise`: 企业订阅用户
+  - `admin`: 平台管理员
+
+**与 Happy Server 集成**:
+- VibeBox 平台用户（Logto ID）→ Happy 账户映射存储在数据库
+- 用户订阅时，后端自动创建 Happy 账户（调用 `/v1/auth`）
+- 客户端使用 Happy credentials 直接连接 Happy Server
+
+**参考文档**: 详见 [ADR 002: Authentication Solution](../decisions/002-authentication-solution.md)
 
 ### 7.2 API 安全
 
@@ -1078,3 +1142,4 @@ SESSION_SECRET=
 - 2025-10-22: **重大修正** - 移除 WebView 嵌入的误解，澄清 VibeBox 客户端是 happy-client 的直接 fork（非包装器/外壳）
 - 2025-10-22: **重大重构** - 从代码导向改为架构导向风格：用流程图、时序图和架构描述替代 API 定义和代码示例
 - 2025-10-22: **语言统一** - 将文档从中英混杂统一为中文
+- 2025-10-23: **P0 修复** (v1.1) - 更新认证方案为 Logto（与 ADR 002 一致，已集成），澄清零修改原则的具体范围（仅适用于 happy-server/cli，不包括客户端定制）

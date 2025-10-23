@@ -20,6 +20,45 @@ This document defines the core methodology and philosophy for working with this 
 
 ---
 
+## 🤖 AI Collaboration Methodology
+
+**Reality:** This project is developed BY AI, FOR AI collaboration across conversations.
+
+**Challenge:** Humans maintain context across sessions. AI starts fresh each time.
+
+### Core Principles
+
+**Convention over Documentation**
+- Predictable structure > maintained indexes (`design/X.md` → `implementation/X.md` → `verification/X.md`)
+
+**Code as Truth**
+- Self-documenting code > explanatory comments
+- Type definitions = contracts, Tests = specifications
+
+**Git as Memory**
+- `git log` = session history, `git status` = current state, `git diff` = changes
+
+**Structure as Navigation**
+- Directory organization reveals domains
+- File naming patterns enable discovery
+- Import relationships show dependencies
+
+**Hashtags as Semantic Anchors**
+- Mark topics in code/docs/commits for cross-context discovery
+- Examples: `**Tags:** #logto #oauth`, `// #auth #token-refresh`, commit message with `#logto`
+
+### The Litmus Test
+
+Before creating any artifact:
+> "Will this require manual maintenance to stay current?"
+
+- If YES → Find self-maintaining alternative (convention, structure, code)
+- If NO → Proceed
+
+**Principle:** Minimize mutable state. Maximize structural clarity.
+
+---
+
 ## 🎯 The Three-Document Method
 
 Every feature implementation requires three distinct documents that serve as the backbone of development:

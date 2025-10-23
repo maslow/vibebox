@@ -125,8 +125,8 @@ Popup windows may close automatically:
 ## 📖 Related Documentation
 
 - [OAuth Integration Plan](../docs/implementation/logto-web-oauth-setup.md)
-- [Architecture Decision: Authentication](../docs/decisions/002-logto-authentication.md)
-- [System Architecture](../docs/architecture/system-architecture.md)
+- [Architecture Decision: Authentication](../docs/decisions/002-authentication-solution.md)
+- [System Architecture](../docs/design/architecture.md)
 
 ## 🎓 Lessons Learned
 
