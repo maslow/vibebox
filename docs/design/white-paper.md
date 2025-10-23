@@ -1,6 +1,6 @@
 # 需求分析报告
 
-**Tags:** #design:requirements #design:business-positioning #feature:mobile-first #feature:subscription #principle:simplicity #phase:document
+**Tags:** #design:requirements #design:business-positioning #feature:vibebox #feature:mobile-first #feature:subscription #principle:simplicity
 
 ## 1. 项目核心与愿景 (Project Core & Vision)
 

@@ -2,7 +2,7 @@
 
 > 本文档记录了在实际测试机器上完成的端到端验证结果
 
-**Tags:** #verification:results #verification:end-to-end #component:happy-server #component:happy-cli #component:happy-web #principle:zero-modification #phase:verify
+**Tags:** #verification:results #verification:end-to-end #verification:successful #component:happy-server #component:happy-cli #component:happy-web #principle:zero-modification
 
 ## 📅 验证信息
 

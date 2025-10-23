@@ -1,6 +1,6 @@
 VibeBox PRD
 
-**Tags:** #design:prd #design:user-journey #feature:vibebox #feature:subscription #feature:mobile-first #principle:simplicity #phase:document
+**Tags:** #design:prd #design:user-journey #feature:vibebox #feature:subscription #feature:mobile-first #principle:simplicity
 
 ## 核心用户旅程
 

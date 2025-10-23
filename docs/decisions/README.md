@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADR)
 
-**Tags:** #decision:index #documentation:adr #phase:document
+**Tags:** #decision:index #documentation:adr
 
 This directory contains Architecture Decision Records (ADRs) for the Happy VibeBox project.
 

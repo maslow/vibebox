@@ -1,6 +1,6 @@
 # Logto Web OAuth Configuration
 
-**Tags:** #implementation:authentication #component:client:web #feature:logto #feature:oauth #action:required #phase:build
+**Tags:** #implementation:authentication #component:client:web #feature:logto #feature:oauth #action:required
 
 ## Problem
 
