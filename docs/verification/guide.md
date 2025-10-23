@@ -2,6 +2,8 @@
 
 > 本指南帮助你在测试机器上手动验证 Happy 商业化集成方案的可行性
 
+**Tags:** #verification:guide #verification:manual-testing #component:happy-server #component:happy-cli #component:happy-web #principle:zero-modification #phase:verify
+
 ## 📋 概述
 
 本次验证将模拟平台侧的所有操作，证明以下核心假设：

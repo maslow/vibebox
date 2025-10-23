@@ -5,6 +5,8 @@
 **Deciders**: Fugen, Claude
 **Context**: Selecting the authentication and authorization solution for VibeBox commercial platform
 
+**Tags:** #decision:authentication #component:client #feature:logto #feature:oauth #principle:experience-over-purity #feature:mobile-first #phase:think
+
 ---
 
 ## Context and Problem Statement

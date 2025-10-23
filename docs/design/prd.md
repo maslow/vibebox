@@ -1,5 +1,7 @@
 VibeBox PRD
 
+**Tags:** #design:prd #design:user-journey #feature:vibebox #feature:subscription #feature:mobile-first #principle:simplicity #phase:document
+
 ## 核心用户旅程
 
 1. **发现与注册：** 独立开发者（首要用户）发现了 VibeBox，并使用 GitHub 或手机号快速注册了账户。

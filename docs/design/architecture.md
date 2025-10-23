@@ -5,6 +5,8 @@
 **状态**: 草稿
 **作者**: Fugen, Claude
 
+**Tags:** #design:architecture #design:system #component:client #component:server #feature:mobile-first #feature:subscription #principle:zero-modification #phase:document
+
 ---
 
 ## 1. 系统概述

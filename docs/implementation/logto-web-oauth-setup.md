@@ -1,5 +1,7 @@
 # Logto Web OAuth Configuration
 
+**Tags:** #implementation:authentication #component:client:web #feature:logto #feature:oauth #action:required #phase:build
+
 ## Problem
 
 The initial Logto integration was configured as a **Native App** with redirect URI `io.vibebox://callback`. This works for iOS/Android but fails on web because browsers cannot handle custom URL schemes.

@@ -1,5 +1,7 @@
 # 需求分析报告
 
+**Tags:** #design:requirements #design:business-positioning #feature:mobile-first #feature:subscription #principle:simplicity #phase:document
+
 ## 1. 项目核心与愿景 (Project Core & Vision)
 
 - **核心价值**: 提供极致便捷、开箱即用的AI编码环境（"VibeBox"），实现零配置、订阅即用。

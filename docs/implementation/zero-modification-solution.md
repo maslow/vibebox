@@ -6,6 +6,8 @@
 >
 > 📅 **文档日期**：2025-10-20
 
+**Tags:** #implementation:integration #implementation:backend #component:happy-server #component:happy-cli #component:happy-web #principle:zero-modification #principle:control-over-dependency #phase:build
+
 ---
 
 ## 目录
