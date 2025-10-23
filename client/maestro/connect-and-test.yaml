@@ -1,0 +1,34 @@
+appId: com.vibebox.app.dev
+---
+# Connect to Dev Server and Basic Interaction Test
+
+# STEP 1: Launch app
+- launchApp
+
+# STEP 2: Wait for Expo Dev Client screen
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 10000
+- takeScreenshot: maestro/screenshots/01-initial.png
+
+# STEP 3: Look for localhost server option
+- runFlow:
+    when:
+      visible:
+        text: ".*localhost.*"
+    commands:
+      - takeScreenshot: maestro/screenshots/02-found-localhost.png
+      - tapOn:
+          text: ".*localhost.*"
+      - extendedWaitUntil:
+          visible: ".*"
+          timeout: 30000
+      - takeScreenshot: maestro/screenshots/03-after-connect.png
+
+# STEP 4: Check if Sign In button appears
+- runFlow:
+    when:
+      visible:
+        text: ".*[Ss]ign.*"
+    commands:
+      - takeScreenshot: maestro/screenshots/04-sign-in-visible.png

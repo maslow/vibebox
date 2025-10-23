@@ -1,0 +1,14 @@
+appId: com.vibebox.app.dev
+---
+# Simple Launch Test - Diagnose basic app functionality
+
+# STEP 1: Launch app
+- launchApp
+
+# STEP 2: Wait for app to load
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 10000
+
+# STEP 3: Take screenshot
+- takeScreenshot: maestro/screenshots/simple-launch.png

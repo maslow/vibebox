@@ -1,0 +1,70 @@
+appId: com.vibebox.app.dev
+---
+# OAuth Flow Verification Test
+# This test verifies the OAuth flow initiation on iOS
+# Note: Due to iOS security restrictions, Maestro cannot interact with
+# SFSafariViewController/WebView content, so this test verifies:
+# 1. App launches correctly
+# 2. Sign In button works
+# 3. OAuth browser/WebView opens successfully
+# For complete OAuth testing, use web E2E tests or manual verification
+
+# STEP 1: Launch app and wait for initial load
+- launchApp
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 10000
+- takeScreenshot: maestro/screenshots/01-app-launch.png
+
+# STEP 1a: Dismiss developer menu modal if it appears
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - extendedWaitUntil:
+          visible: ".*"
+          timeout: 5000
+      - takeScreenshot: maestro/screenshots/02-dev-menu-dismissed.png
+
+# STEP 2: Look for and connect to localhost dev server (if needed)
+- runFlow:
+    when:
+      visible:
+        text: ".*localhost.*"
+    commands:
+      - takeScreenshot: maestro/screenshots/03-dev-server-list.png
+      - tapOn:
+          text: ".*localhost.*"
+      - extendedWaitUntil:
+          visible: ".*"
+          timeout: 30000
+
+# STEP 3: Verify Sign In button is visible
+- extendedWaitUntil:
+    visible: "Sign In with Logto"
+    timeout: 10000
+- takeScreenshot: maestro/screenshots/04-sign-in-button.png
+
+# STEP 4: Tap Sign In button
+- tapOn: "Sign In with Logto"
+
+# STEP 5: Wait for OAuth browser/WebView to open and load
+# Note: We cannot verify WebView content due to iOS security restrictions
+# We wait a few seconds and take a screenshot to manually verify
+- extendedWaitUntil:
+    notVisible: "Sign In with Logto"
+    timeout: 10000
+- takeScreenshot: maestro/screenshots/05-oauth-browser-opened.png
+
+# SUCCESS: OAuth flow initiated successfully
+# At this point, the app has:
+# ✅ Launched correctly
+# ✅ Connected to dev server (if needed)
+# ✅ Displayed Sign In button
+# ✅ Opened OAuth browser/WebView
+#
+# Manual verification needed for:
+# - Complete OAuth account creation
+# - OAuth callback handling
+# - Post-authentication app state

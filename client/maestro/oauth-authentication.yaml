@@ -1,0 +1,99 @@
+appId: com.vibebox.app.dev
+---
+# OAuth Authentication Flow Test
+# Based on web E2E test: /tests/e2e/oauth-authentication.test.js
+
+# STEP 1: Launch app and wait for initial load
+- launchApp
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 10000
+- takeScreenshot: maestro/screenshots/01-initial.png
+
+# STEP 1a: Dismiss developer menu modal if it appears
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - extendedWaitUntil:
+          visible: ".*"
+          timeout: 5000
+
+# STEP 2: Look for and connect to localhost dev server (if needed)
+- runFlow:
+    when:
+      visible:
+        text: ".*localhost.*"
+    commands:
+      - takeScreenshot: maestro/screenshots/02-found-localhost.png
+      - tapOn:
+          text: ".*localhost.*"
+      - extendedWaitUntil:
+          visible: ".*"
+          timeout: 30000
+
+# STEP 3: Wait for Sign In button to appear
+- extendedWaitUntil:
+    visible: "Sign In with Logto"
+    timeout: 10000
+- takeScreenshot: maestro/screenshots/03-app-loaded.png
+
+# STEP 4: Tap Sign In button
+- tapOn: "Sign In with Logto"
+- takeScreenshot: maestro/screenshots/04-sign-in-clicked.png
+
+# Wait for browser/WebView to open and load Logto page
+# Note: On native, Logto opens in system browser or WebView
+- extendedWaitUntil:
+    visible: "Create account"
+    timeout: 20000
+- takeScreenshot: maestro/screenshots/05-logto-page.png
+
+# STEP 5: Create account - tap "Create account" link (if visible)
+- runFlow:
+    when:
+      visible: "Create account"
+    commands:
+      - tapOn: "Create account"
+      - extendedWaitUntil:
+          visible:
+            text: ".*[Uu]sername.*|.*[Ee]mail.*"
+          timeout: 5000
+      - takeScreenshot: maestro/screenshots/06-create-account.png
+
+# STEP 6: Enter username/email
+- inputText: "testuser${MAESTRO_TIMESTAMP}"
+- takeScreenshot: maestro/screenshots/07-username-entered.png
+
+# STEP 7: Submit username (look for Continue/Next/Create account button)
+- tapOn:
+    text: ".*[Cc]ontinue.*|.*[Nn]ext.*|.*[Cc]reate.*"
+- extendedWaitUntil:
+    visible:
+      text: ".*[Pp]assword.*"
+    timeout: 10000
+- takeScreenshot: maestro/screenshots/08-password-page.png
+
+# STEP 8: Enter password (find password input fields)
+- inputText: "TestPassword123!@#"
+- hideKeyboard
+- inputText: "TestPassword123!@#"
+- takeScreenshot: maestro/screenshots/09-password-entered.png
+
+# STEP 9: Submit password
+- tapOn:
+    text: ".*[Ss]ave.*|.*[Ss]ubmit.*|.*[Cc]ontinue.*"
+- takeScreenshot: maestro/screenshots/10-password-submitted.png
+
+# STEP 10: Wait for OAuth callback to complete
+- extendedWaitUntil:
+    notVisible: "Sign In with Logto"
+    timeout: 20000
+
+# STEP 11: Verify authentication success
+# Look for app content that appears after login
+- assertVisible:
+    text: ".*[Hh]appy.*|.*[Dd]isconnected.*|.*[Ss]ession.*|.*[Hh]ome.*"
+- takeScreenshot: maestro/screenshots/11-authenticated.png
+
