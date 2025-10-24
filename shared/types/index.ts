@@ -42,11 +42,14 @@ export interface VibeBox {
 // VibeBox connection info (for client)
 export interface VibeBoxConnectionInfo {
   vibeBoxId: string;
-  ipAddress: string;
-  sshPort: number;
-  sshCommand: string;
-  happyToken: string;
-  happySecret: string;
+  ipAddress: string | null;
+  sshPort: number | null;
+  sshCommand: string | null;
+  happy: {
+    token: string;
+    secret: string;
+    serverUrl: string;
+  };
 }
 
 // API response types
@@ -79,3 +82,6 @@ export interface SessionInfo {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// Control actions
+export type VibeBoxControlAction = 'start' | 'stop' | 'restart';

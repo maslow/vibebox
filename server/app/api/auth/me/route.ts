@@ -1,21 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth/middleware';
+import { successResponse, errorResponse } from '@/lib/errors';
 
+/**
+ * GET /api/auth/me
+ * Returns current authenticated user information
+ *
+ * #auth #user #api
+ */
 export async function GET(request: NextRequest) {
-    const authResult = await requireAuth(request);
+    try {
+        const authResult = await requireAuth(request);
 
-    if (authResult instanceof NextResponse) {
-        return authResult; // Error response
+        if ('status' in authResult) {
+            return authResult; // Error response from middleware
+        }
+
+        const { user } = authResult;
+
+        return successResponse({
+            id: user.id,
+            logtoId: user.logtoId,
+            email: user.email,
+            name: user.name,
+            picture: user.picture,
+            subscription: user.subscription,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+        });
+    } catch (error) {
+        return errorResponse(error);
     }
-
-    const { user } = authResult;
-
-    // TODO: Fetch user from database
-    // For now, return Logto user info
-    return NextResponse.json({
-        id: user.sub,
-        email: user.email,
-        name: user.name,
-        picture: user.picture,
-    });
 }

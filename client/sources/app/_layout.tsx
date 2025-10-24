@@ -7,6 +7,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { AuthCredentials, TokenStorage } from '@/auth/tokenStorage';
 import { AuthProvider } from '@/auth/AuthContext';
 import { LogtoProvider } from '@/auth/LogtoProvider';
+import { LogtoAuthProvider } from '@/auth/LogtoAuthContext';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { initialWindowMetrics, SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,6 +29,7 @@ import { monkeyPatchConsoleForRemoteLoggingForFasterAiAutoDebuggingOnlyInLocalBu
 import { useUnistyles } from 'react-native-unistyles';
 import { AsyncLock } from '@/utils/lock';
 import { AuthGuard } from '@/components/AuthGuard';
+import { HappyAutoLogin } from '@/components/HappyAutoLogin';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -200,28 +202,32 @@ export default function RootLayout() {
 
     let providers = (
         <LogtoProvider>
-            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                <KeyboardProvider>
-                    <GestureHandlerRootView style={{ flex: 1 }}>
-                        <AuthProvider initialCredentials={initState.credentials}>
-                            <ThemeProvider value={navigationTheme}>
-                                <StatusBarProvider />
-                                <ModalProvider>
-                                    <CommandPaletteProvider>
-                                        <RealtimeProvider>
-                                            <HorizontalSafeAreaWrapper>
-                                                <AuthGuard>
-                                                    <SidebarNavigator />
-                                                </AuthGuard>
-                                            </HorizontalSafeAreaWrapper>
-                                        </RealtimeProvider>
-                                    </CommandPaletteProvider>
-                                </ModalProvider>
-                            </ThemeProvider>
-                        </AuthProvider>
+            <LogtoAuthProvider>
+                <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                    <KeyboardProvider>
+                        <GestureHandlerRootView style={{ flex: 1 }}>
+                            <AuthProvider initialCredentials={initState.credentials}>
+                                <HappyAutoLogin>
+                                    <ThemeProvider value={navigationTheme}>
+                                    <StatusBarProvider />
+                                    <ModalProvider>
+                                        <CommandPaletteProvider>
+                                            <RealtimeProvider>
+                                                <HorizontalSafeAreaWrapper>
+                                                    <AuthGuard>
+                                                        <SidebarNavigator />
+                                                    </AuthGuard>
+                                                </HorizontalSafeAreaWrapper>
+                                            </RealtimeProvider>
+                                        </CommandPaletteProvider>
+                                    </ModalProvider>
+                                </ThemeProvider>
+                                </HappyAutoLogin>
+                            </AuthProvider>
                     </GestureHandlerRootView>
                 </KeyboardProvider>
             </SafeAreaProvider>
+            </LogtoAuthProvider>
         </LogtoProvider>
     );
     if (tracking) {

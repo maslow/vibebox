@@ -14,6 +14,16 @@ export interface LogtoUser {
 
 export async function verifyLogtoToken(token: string): Promise<LogtoUser> {
     try {
+        // First decode to see what's in the token
+        const parts = token.split('.');
+        if (parts.length === 3) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+            console.log('[LOGTO] Token payload iss:', payload.iss);
+            console.log('[LOGTO] Token payload aud:', payload.aud);
+            console.log('[LOGTO] Expected iss:', process.env.LOGTO_ENDPOINT);
+            console.log('[LOGTO] Expected aud:', process.env.LOGTO_APP_ID);
+        }
+
         const { payload } = await jwtVerify(token, JWKS, {
             issuer: process.env.LOGTO_ENDPOINT,
             audience: process.env.LOGTO_APP_ID,
@@ -21,7 +31,11 @@ export async function verifyLogtoToken(token: string): Promise<LogtoUser> {
 
         return payload as LogtoUser;
     } catch (error) {
-        throw new Error('Invalid token');
+        console.error('[LOGTO] Token verification error:', error);
+        console.error('[LOGTO] JWKS_URI:', JWKS_URI);
+        console.error('[LOGTO] Issuer:', process.env.LOGTO_ENDPOINT);
+        console.error('[LOGTO] Audience:', process.env.LOGTO_APP_ID);
+        throw error;
     }
 }
 
