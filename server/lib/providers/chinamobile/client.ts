@@ -1,12 +1,11 @@
 /**
  * China Mobile Cloud API Client
- * Handles all HTTP requests to China Mobile Cloud ECS API
+ * Uses Portal Gateway for all API requests
  *
- * #chinamobile #api #client #ecs
+ * #chinamobile #api #client #ecs #portal-gateway
  */
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { generateAuthHeaders } from './auth';
 import {
   ChinaMobileResponse,
   CreateInstanceRequest,
@@ -23,6 +22,7 @@ import {
 export interface ChinaMobileClientConfig {
   accessKeyId: string;
   accessKeySecret: string;
+  poolId: string;
   endpoint?: string;
   timeout?: number;
 }
@@ -42,99 +42,153 @@ export class ChinaMobileAPIError extends Error {
 }
 
 /**
+ * Portal Gateway Request Body
+ */
+interface PortalGatewayRequest {
+  product: string;
+  version: string;
+  api: string;
+  accessKey: string;
+  secretKey: string;
+  poolId: string;
+  language: string;
+  sdkVersion: string;
+  bodyParameter?: any;
+  queryParameter?: any;
+  headerParameter?: any;
+  pathParameter?: any; // 添加 pathParameter 支持
+}
+
+/**
+ * Portal Gateway Response (nested structure)
+ */
+interface PortalGatewayResponse {
+  requestId: string;
+  state: string;
+  body: {
+    timeConsuming: string;
+    responseBody: string; // JSON string that needs parsing
+    requestHeader: Record<string, any>;
+    responseHeader: Record<string, any>;
+  };
+}
+
+/**
  * China Mobile Cloud API Client
+ * All requests go through Portal Gateway
  */
 export class ChinaMobileClient {
   private client: AxiosInstance;
   private accessKeyId: string;
   private accessKeySecret: string;
-  private baseURL: string;
+  private poolId: string;
+  private gatewayUrl: string;
 
   constructor(config: ChinaMobileClientConfig) {
     this.accessKeyId = config.accessKeyId;
     this.accessKeySecret = config.accessKeySecret;
-    this.baseURL =
-      config.endpoint || 'https://ecloud.10086.cn';
+    this.poolId = config.poolId;
+
+    const baseURL = config.endpoint || 'https://ecloud.10086.cn';
+    this.gatewayUrl = '/api/query/openapi/apim/request/sdk';
 
     this.client = axios.create({
-      baseURL: this.baseURL,
+      baseURL,
       timeout: config.timeout || 30000,
       headers: {
         'Content-Type': 'application/json',
+        'User-Agent': 'ecloud-sdk-nodejs/1.0',
       },
-    });
-
-    // Add request interceptor for authentication
-    this.client.interceptors.request.use((config) => {
-      const authHeaders = generateAuthHeaders(
-        this.accessKeyId,
-        this.accessKeySecret,
-        config.method?.toUpperCase() || 'GET',
-        config.url || '',
-        config.data
-      );
-
-      // For GET requests, use query parameters
-      // For POST requests, use headers
-      if (config.method?.toUpperCase() === 'GET') {
-        // Add auth params to query string
-        const params = new URLSearchParams(config.params || {});
-        Object.entries(authHeaders).forEach(([key, value]) => {
-          params.append(key, value);
-        });
-        config.params = params;
-      } else {
-        // Apply auth headers to request
-        Object.entries(authHeaders).forEach(([key, value]) => {
-          config.headers.set(key, value);
-        });
-      }
-
-      return config;
     });
   }
 
   /**
-   * Make API request with error handling
+   * Make Portal Gateway request
+   * All API calls go through this unified gateway
    */
-  private async request<T>(
-    method: 'GET' | 'POST',
-    path: string,
-    data?: any
+  private async portalRequest<T>(
+    action: string,
+    params?: {
+      bodyParameter?: any;
+      queryParameter?: any;
+      headerParameter?: any;
+      pathParameter?: any;
+    }
   ): Promise<T> {
-    try {
-      const response = await this.client.request<ChinaMobileResponse<T>>({
-        method,
-        url: path,
-        data,
-      });
+    const requestBody: PortalGatewayRequest = {
+      product: 'ECS',
+      version: 'v1',
+      api: action,
+      accessKey: this.accessKeyId,
+      secretKey: this.accessKeySecret,
+      poolId: this.poolId,
+      language: 'Nodejs',
+      sdkVersion: '1.0.1', // Node SDK 官方版本
+      ...params,
+    };
 
-      // Check response state
+    try {
+      const response = await this.client.post<PortalGatewayResponse>(
+        this.gatewayUrl,
+        requestBody
+      );
+
+      // Check gateway-level response
       if (response.data.state !== 'OK') {
         throw new ChinaMobileAPIError(
-          response.data.errorMessage || 'API request failed',
-          response.data.errorCode || 'UNKNOWN_ERROR',
+          'Gateway request failed',
+          'GATEWAY_ERROR',
           response.data.requestId
         );
       }
 
-      // Return body
-      return response.data.body as T;
+      // Parse nested response body (it's a JSON string inside response.data.body.responseBody)
+      if (!response.data.body || !response.data.body.responseBody) {
+        throw new ChinaMobileAPIError(
+          'Gateway returned no responseBody',
+          'GATEWAY_INVALID_RESPONSE',
+          response.data.requestId
+        );
+      }
+
+      const actualResponse = JSON.parse(response.data.body.responseBody) as ChinaMobileResponse<T>;
+
+      // Check response state
+      if (actualResponse.state !== 'OK') {
+        throw new ChinaMobileAPIError(
+          actualResponse.errorMessage || 'API request failed',
+          actualResponse.errorCode || 'UNKNOWN_ERROR',
+          actualResponse.requestId
+        );
+      }
+
+      // Return the actual body
+      return actualResponse.body as T;
     } catch (error) {
       if (error instanceof ChinaMobileAPIError) {
         throw error;
       }
 
       if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ChinaMobileResponse>;
+        const axiosError = error as AxiosError;
 
+        // Try to parse error response
         if (axiosError.response?.data) {
-          const { errorCode, errorMessage, requestId } = axiosError.response.data;
-          throw new ChinaMobileAPIError(
-            errorMessage || axiosError.message,
-            errorCode || 'HTTP_ERROR',
-            requestId
-          );
+          const errorData = axiosError.response.data as any;
+
+          // If it's a gateway response, parse it
+          if (errorData.body && errorData.body.responseBody) {
+            try {
+              const parsedError = JSON.parse(errorData.body.responseBody);
+              throw new ChinaMobileAPIError(
+                parsedError.errorMessage || axiosError.message,
+                parsedError.errorCode || 'GATEWAY_ERROR',
+                parsedError.requestId || errorData.requestId
+              );
+            } catch (parseError) {
+              // Fall through to generic error
+            }
+          }
         }
 
         throw new ChinaMobileAPIError(
@@ -148,106 +202,93 @@ export class ChinaMobileClient {
   }
 
   /**
+   * List instances
+   * Action: vmListServe
+   */
+  async listInstances(params?: any): Promise<any> {
+    return this.portalRequest('vmListServe', {
+      bodyParameter: params || {},
+    });
+  }
+
+  /**
    * Create instances
+   * Action: vmCreate
    */
   async createInstances(
     params: CreateInstanceRequest
   ): Promise<CreateInstanceResponse> {
-    return this.request<CreateInstanceResponse>(
-      'POST',
-      '/api/openapi-instance/v4/create-instances',
-      params
-    );
-  }
-
-  /**
-   * Delete instances
-   */
-  async deleteInstances(
-    params: DeleteInstancesRequest
-  ): Promise<BatchOperationResponse> {
-    return this.request<BatchOperationResponse>(
-      'POST',
-      '/api/openapi-instance/v4/delete-instances',
-      params
-    );
+    return this.portalRequest<CreateInstanceResponse>('vmCreate', {
+      bodyParameter: params,
+    });
   }
 
   /**
    * Describe instance details
+   * Action: vmGetServerDetail
    */
   async describeInstance(instanceId: string): Promise<InstanceDetails> {
-    return this.request<InstanceDetails>(
-      'GET',
-      `/api/openapi-instance/v4/describe-instance?instanceId=${instanceId}`
-    );
+    return this.portalRequest<InstanceDetails>('vmGetServerDetail', {
+      pathParameter: { serverId: instanceId },
+    });
   }
 
   /**
-   * Start instances (batch)
+   * Start instance (single)
+   * Action: vmStart
    */
-  async startInstances(
-    instanceIds: string[]
-  ): Promise<BatchOperationResponse> {
-    return this.request<BatchOperationResponse>(
-      'POST',
-      '/api/openapi-instance/v4/batch-start-instances',
-      { instanceIds } as BatchInstancesRequest
-    );
+  async startInstance(instanceId: string): Promise<any> {
+    return this.portalRequest('vmStart', {
+      pathParameter: { serverId: instanceId },
+    });
   }
 
   /**
-   * Stop instances (batch)
+   * Stop instance (single)
+   * Action: vmStop
    */
-  async stopInstances(
-    instanceIds: string[]
-  ): Promise<BatchOperationResponse> {
-    return this.request<BatchOperationResponse>(
-      'POST',
-      '/api/openapi-instance/v4/batch-stop-instances',
-      { instanceIds } as BatchInstancesRequest
-    );
+  async stopInstance(instanceId: string): Promise<any> {
+    return this.portalRequest('vmStop', {
+      pathParameter: { serverId: instanceId },
+    });
   }
 
   /**
-   * Reboot instances (batch)
+   * Reboot instance (single)
+   * Action: vmReboot
    */
-  async rebootInstances(
-    instanceIds: string[]
-  ): Promise<BatchOperationResponse> {
-    return this.request<BatchOperationResponse>(
-      'POST',
-      '/api/openapi-instance/v4/batch-reboot-instances',
-      { instanceIds } as BatchInstancesRequest
-    );
+  async rebootInstance(instanceId: string): Promise<any> {
+    return this.portalRequest('vmReboot', {
+      pathParameter: { serverId: instanceId },
+    });
   }
 
   /**
-   * Describe available zones
-   * Returns list of available zones (regions/availability zones)
+   * Delete instance (single)
+   * Action: vmDelete
    */
-  async describeZones(): Promise<any[]> {
-    try {
-      // Try multiple possible endpoints
-      const possiblePaths = [
-        '/api/openapi-instance/v4/describe-zones',
-        '/api/openapi-instance/v4/describe-availability-zones',
-        '/api/v1/zones',
-      ];
+  async deleteInstance(instanceId: string): Promise<any> {
+    return this.portalRequest('vmDelete', {
+      pathParameter: { serverId: instanceId },
+    });
+  }
 
-      for (const path of possiblePaths) {
-        try {
-          return await this.request<any[]>('GET', path);
-        } catch (error) {
-          // Continue to next path if this one fails
-          continue;
-        }
-      }
+  /**
+   * Get product types/offers
+   * Action: vmgetProductOfferIds
+   */
+  async getProductTypes(): Promise<any> {
+    return this.portalRequest('vmgetProductOfferIds');
+  }
 
-      throw new Error('Unable to query zones from any known endpoint');
-    } catch (error) {
-      throw error;
-    }
+  /**
+   * Get flavors by region
+   * Action: vmgetFlavorByRegion
+   */
+  async getFlavorsByRegion(regionId: string): Promise<any> {
+    return this.portalRequest('vmgetFlavorByRegion', {
+      bodyParameter: { regionId },
+    });
   }
 
   /**
@@ -255,14 +296,12 @@ export class ChinaMobileClient {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      // Try to describe a non-existent instance
-      // If we get a proper error response, API is working
-      await this.describeInstance('health-check-test-id');
+      // Try to list instances
+      await this.listInstances();
       return true;
     } catch (error) {
       if (error instanceof ChinaMobileAPIError) {
         // If we get an API error, it means the API is responding
-        // (even if the instance doesn't exist)
         return true;
       }
       return false;

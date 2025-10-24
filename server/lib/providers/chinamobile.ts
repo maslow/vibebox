@@ -39,19 +39,14 @@ export class ChinaMobileProvider extends BaseProvider {
   readonly name = 'China Mobile Cloud ECS';
 
   private client!: ChinaMobileClient;
-  private defaultZoneId: string = 'cn-jiangsu-1a'; // Default zone
+  private defaultZoneId: string = 'cn-hangzhou-1a'; // Default zone (Hangzhou)
   private defaultNetworkId: string = ''; // Will be set from config
+  private poolId: string = 'CIDC-RP-35'; // Default Pool ID (Hangzhou)
 
   /**
    * Setup China Mobile client
    */
   protected async setupClient(config: ProviderConfig): Promise<void> {
-    this.client = new ChinaMobileClient({
-      accessKeyId: config.credentials.accessKeyId,
-      accessKeySecret: config.credentials.accessKeySecret,
-      endpoint: config.endpoint,
-    });
-
     // Extract options
     if (config.options) {
       if (config.options.zoneId) {
@@ -60,9 +55,20 @@ export class ChinaMobileProvider extends BaseProvider {
       if (config.options.networkId) {
         this.defaultNetworkId = config.options.networkId;
       }
+      if (config.options.poolId) {
+        this.poolId = config.options.poolId;
+      }
     }
 
+    this.client = new ChinaMobileClient({
+      accessKeyId: config.credentials.accessKeyId,
+      accessKeySecret: config.credentials.accessKeySecret,
+      poolId: this.poolId,
+      endpoint: config.endpoint,
+    });
+
     this.log('info', 'China Mobile Cloud provider initialized', {
+      poolId: this.poolId,
       zoneId: this.defaultZoneId,
     });
   }
