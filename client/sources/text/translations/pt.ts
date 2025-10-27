@@ -93,6 +93,11 @@ export const pt: TranslationStructure = {
         enterUrlManually: 'Inserir URL manualmente',
     },
 
+    auth: {
+        connectingToHappy: 'Conectando ao servidor...',
+        happyLoginFailed: 'Falha ao conectar ao servidor',
+    },
+
     settings: {
         title: 'Configurações',
         connectedAccounts: 'Contas conectadas',

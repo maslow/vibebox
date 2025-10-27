@@ -93,6 +93,11 @@ export const en = {
         enterUrlManually: 'Enter URL manually',
     },
 
+    auth: {
+        connectingToHappy: 'Connecting to server...',
+        happyLoginFailed: 'Failed to connect to server',
+    },
+
     settings: {
         title: 'Settings',
         connectedAccounts: 'Connected Accounts',

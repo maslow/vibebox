@@ -104,6 +104,11 @@ export const pl: TranslationStructure = {
         enterUrlManually: 'Wprowadź URL ręcznie',
     },
 
+    auth: {
+        connectingToHappy: 'Łączenie z serwerem...',
+        happyLoginFailed: 'Nie udało się połączyć z serwerem',
+    },
+
     settings: {
         title: 'Ustawienia',
         connectedAccounts: 'Połączone konta',

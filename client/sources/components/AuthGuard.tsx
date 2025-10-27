@@ -10,18 +10,22 @@ import { usePathname } from 'expo-router';
  *
  * Dual Authentication Architecture:
  * - **Logto Auth**: Required for VibeBox platform access (subscription, management)
- * - **Happy Auth**: Optional, automatic when VibeBox is created (dev environment access)
+ * - **Happy Auth**: Required for development environment access (handled by HappyAutoLogin)
  *
  * This guard checks Logto authentication status and renders:
  * - Loading screen while checking auth
  * - Login screen if not authenticated
  * - Children (main app) if authenticated
  *
+ * Note: After Logto auth succeeds, HappyAutoLogin component will automatically
+ * attempt to login to Happy Server. Both authentications must succeed for user
+ * to access the application.
+ *
  * Special handling for OAuth callback route:
  * - Allows /callback route to bypass auth check on web platform
  * - This lets Logto SDK process the OAuth redirect before auth check
  *
- * #auth #guard #logto #dual-authentication
+ * #auth #guard #logto #dual-authentication #required
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading } = useLogtoAuth();

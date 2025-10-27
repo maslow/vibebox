@@ -95,6 +95,11 @@ export const zhHans: TranslationStructure = {
         enterUrlManually: '手动输入 URL',
     },
 
+    auth: {
+        connectingToHappy: '正在连接服务器...',
+        happyLoginFailed: '连接服务器失败',
+    },
+
     settings: {
         title: '设置',
         connectedAccounts: '已连接账户',

@@ -76,6 +76,11 @@ export const ru: TranslationStructure = {
         enterUrlManually: 'Ввести URL вручную',
     },
 
+    auth: {
+        connectingToHappy: 'Подключение к серверу...',
+        happyLoginFailed: 'Не удалось подключиться к серверу',
+    },
+
     settings: {
         title: 'Настройки',
         connectedAccounts: 'Подключенные аккаунты',

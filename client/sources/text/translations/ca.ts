@@ -93,6 +93,11 @@ export const ca: TranslationStructure = {
         enterUrlManually: 'Introdueix l\'URL manualment',
     },
 
+    auth: {
+        connectingToHappy: 'Connectant amb el servidor...',
+        happyLoginFailed: 'Error al connectar amb el servidor',
+    },
+
     settings: {
         title: 'Configuració',
         connectedAccounts: 'Comptes connectats',
