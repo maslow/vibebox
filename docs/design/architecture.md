@@ -5,7 +5,7 @@
 **状态**: 草稿
 **作者**: Fugen, Claude
 
-**Tags:** #design:architecture #component:client #component:server #feature:mobile-first #feature:subscription #feature:authentication #feature:logto #feature:oauth #feature:payment #principle:zero-modification
+**Tags:** #design:architecture #component:client #component:server #feature:mobile-first #feature:subscription #feature:authentication #feature:logto #feature:oauth #feature:dual-auth #feature:payment #principle:zero-modification
 
 ---
 
