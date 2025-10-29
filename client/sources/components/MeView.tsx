@@ -88,7 +88,7 @@ function HeaderTitle() {
     return (
         <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={styles.titleText}>
-                {t('tabs.settings')}
+                {t('tabs.me')}
             </Text>
             {connectionStatus.text && (
                 <View style={{
@@ -154,7 +154,7 @@ function HeaderRight() {
     );
 }
 
-export const SettingsViewWrapper = React.memo(() => {
+export const MeView = React.memo(() => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 

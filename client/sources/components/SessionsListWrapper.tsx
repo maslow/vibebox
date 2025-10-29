@@ -144,7 +144,7 @@ function HeaderTitle() {
     return (
         <View style={styles.titleContainer}>
             <Text style={styles.titleText}>
-                {t('tabs.sessions')}
+                {t('tabs.chats')}
             </Text>
             {connectionStatus.text && (
                 <View style={styles.statusContainer}>
