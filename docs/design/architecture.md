@@ -91,10 +91,10 @@ VibeBox 项目遵循"零修改"原则，但仅针对核心 Happy 基础设施：
 ┌───────────────────┐ ┌──────────────┐ ┌─────────────────┐
 │  PostgreSQL       │ │ Happy Server │ │  外部服务        │
 │  数据库            │ │ (官方)       │ │  - 支付服务      │
-│  - 用户           │ │ - /v1/auth   │ │    (微信/        │
-│  - 订阅           │ │ - /v1/machines│ │     Stripe)     │
-│  - VibeBoxes      │ │ - WebSocket  │ │  - 邮件服务      │
-│  - Happy 映射     │ │              │ │                 │
+│  - 用户           │ │ - /v1/auth   │ │    (Stripe/     │
+│  - 订阅           │ │ - /v1/machines│ │     Apple IAP/  │
+│  - VibeBoxes      │ │ - WebSocket  │ │     Google Play)│
+│  - Happy 映射     │ │              │ │  - 邮件服务      │
 │  - 资源池状态     │ │              │ │                 │
 └───────────────────┘ └──────────────┘ └─────────────────┘
                               │
@@ -202,9 +202,9 @@ server/
 │   │   ├── types.ts                    # PaymentProvider 接口
 │   │   ├── paymentService.ts           # 主支付服务
 │   │   └── providers/                  # 提供商实现
-│   │       ├── wechatPayProvider.ts    # 微信支付
-│   │       ├── stripeProvider.ts       # Stripe
-│   │       └── alipayProvider.ts       # 支付宝
+│   │       ├── stripeProvider.ts       # Stripe (Web)
+│   │       ├── appleIAPProvider.ts     # Apple IAP (iOS)
+│   │       └── googlePlayProvider.ts   # Google Play (Android)
 │   └── happy/
 │       ├── integration.ts              # HappyIntegration 类
 │       ├── ssh.ts                      # SSH 自动化
@@ -265,9 +265,9 @@ server/
 **架构**: 插件化支付提供商系统（详见第 6.2 节）
 
 **支持的提供商**:
-- **微信支付** - 中国市场主要方式（QR 码、原生 APP）
-- **Stripe** - 国际市场主要方式（Checkout Session）
-- **支付宝** - 中国市场辅助方式
+- **Stripe** - Web 平台订阅（Checkout Session）
+- **Apple IAP** - iOS 平台订阅（In-App Purchase）
+- **Google Play** - Android 平台订阅（Google Play Billing）
 
 **通用集成端点**:
 - 订单创建 - 启动支付流程
@@ -314,11 +314,13 @@ model Subscription {
   userId        String
   user          User           @relation(fields: [userId], references: [id])
 
-  planId        String         // "basic" | "pro" | "enterprise"
+  planId        String         // "vibebox-pro" (single SKU)
+  billingCycle  String         // "monthly" | "yearly"
+  quantity      Int            @default(1)  // 订阅的 Box 数量
   status        String         // "active" | "canceled" | "expired"
 
   // Payment provider info
-  paymentProvider        String   // "wechat" | "stripe" | "alipay"
+  paymentProvider        String   // "stripe" | "apple_iap" | "google_play"
   paymentCustomerId      String?  // Provider's customer ID
   paymentSubscriptionId  String?  // Provider's subscription ID
 
@@ -350,8 +352,8 @@ model VibeBox {
   // Status
   status        String         // "allocated" | "running" | "stopped" | "terminated" | "error"
 
-  // Plan
-  planId        String
+  // Plan (single SKU: VibeBox Pro)
+  planId        String  // "vibebox-pro"
 
   // Happy integration
   happyConfigured Boolean      @default(true)  // 资源池中的服务器已预配置
@@ -380,21 +382,22 @@ model HappyAccount {
 }
 
 model Plan {
-  id            String         @id
-  name          String         // "Basic" | "Pro" | "Enterprise"
+  id            String         @id  // "vibebox-pro"
+  name          String         // "VibeBox Pro"
   description   String
 
-  // Pricing
-  priceMonthly  Int            // In cents (e.g., 2900 = $29.00)
-  priceYearly   Int            // In cents
+  // Pricing (single SKU)
+  priceMonthly  Int            // In cents (e.g., 2400 = $24.00)
+  priceYearly   Int            // In cents (e.g., 19200 = $192.00, 33% off)
 
-  // Resources
-  cpuCores      Int
-  ramGb         Int
-  diskGb        Int
+  // Resources (2c4g standard)
+  cpuCores      Int            @default(2)
+  ramGb         Int            @default(4)
+  diskGb        Int            @default(40)
 
-  // API Quota
-  claudeApiQuota Int           // In dollars (e.g., 10 = $10.00/month)
+  // API Strategy (worry-free, no quota display in MVP)
+  // API Keys have daily limits configured in Claude backend
+  // No frontend quota display in MVP
 
   // Features
   features      Json           // Array of feature strings
@@ -434,24 +437,24 @@ Plan (1) ─── (0..N) Subscription
      │ 2. 后端验证并创建User记录
      ▼
 ┌─────────┐
-│ 浏览计划 │
+│ 查看定价 │
 └────┬────┘
-     │ 3. 获取订阅计划列表
-     │    (Basic/Pro/Enterprise)
+     │ 3. 查看 VibeBox Pro 定价
+     │    (单一 SKU)
      ▼
 ┌─────────┐
-│ 选择计划 │
+│ 选择周期 │
 └────┬────┘
-     │ 4. 选择计划和付费周期
-     │    (月付/年付)
+     │ 4. 选择订阅周期和数量
+     │    (月付 $24 或年付 $192, Quantity)
      ▼
 ┌─────────┐
 │ 支付流程 │  ────────────────┐
 └────┬────┘                   │
-     │ 5. 选择支付方式         │ 详见 5.3
-     │    - 微信支付 (中国)    │
-     │    - 支付宝 (中国)      │
-     │    - Stripe (国际)      │
+     │ 5. 根据平台选择支付      │ 详见 5.3
+     │    - Web: Stripe       │
+     │    - iOS: Apple IAP    │
+     │    - Android: Google   │
      │ 6. 完成支付            │
      ▼                        │
 ┌─────────┐◄─────────────────┘
@@ -617,8 +620,8 @@ Plan (1) ─── (0..N) Subscription
 **关键步骤说明**:
 
 1. **支付阶段** (步骤1-7):
-   - 用户选择计划，后端创建支付订单
-   - 返回支付方式相关信息（微信QR码/Stripe URL）
+   - 用户选择计划，后端根据平台创建支付订单
+   - 返回支付信息（Stripe Checkout URL / IAP Transaction ID / Google Play Purchase Token）
    - 用户完成支付
 
 2. **Webhook处理** (步骤8-10):
@@ -831,7 +834,7 @@ VibeBox 客户端是 happy-client 的**直接 fork 和合理定制**（非包装
 
 ### 6.2 支付集成
 
-**架构设计**: 插件化支付提供商系统，支持多市场多支付方式
+**架构设计**: 插件化支付提供商系统，支持多平台支付方式
 
 #### 架构设计图
 
@@ -848,29 +851,39 @@ VibeBox 客户端是 happy-client 的**直接 fork 和合理定制**（非包装
              │           │            │
              ▼           ▼            ▼
     ┌────────────┐ ┌────────────┐ ┌────────────┐
-    │  WeChat    │ │  Stripe    │ │  Alipay    │
+    │  Stripe    │ │ Apple IAP  │ │Google Play │
     │  Provider  │ │  Provider  │ │  Provider  │
     └────────────┘ └────────────┘ └────────────┘
          │              │              │
          │              │              │
          ▼              ▼              ▼
-    微信支付API    Stripe API     支付宝API
-    - QR码支付    - Checkout     - QR码支付
-    - APP支付     - Webhook      - APP支付
+    Stripe API     Apple API      Google API
+    - Checkout     - In-App       - Billing
+    - Subscription - Purchase     - Subscription
+    - Webhook      - Server       - Developer
+                   Notifications  Notifications
 ```
 
 #### 设计要求
 
-**多市场支持**:
-- **中国市场**：微信支付（主）、支付宝（辅）
-  - 支付方式：QR码扫码、APP内支付
-  - 货币：人民币（CNY）
-  - 合规：符合中国支付监管要求
-
-- **国际市场**：Stripe（主）
+**多平台支持**:
+- **Web 平台**：Stripe
   - 支付方式：信用卡、借记卡
-  - 货币：美元（USD）、欧元（EUR）等
+  - 货币：美元（USD）
   - 合规：PCI-DSS认证
+  - 集成方式：Stripe Checkout（重定向到Stripe托管页面）
+
+- **iOS 平台**：Apple In-App Purchase
+  - 支付方式：Apple ID关联支付方式
+  - 货币：多货币支持（由Apple处理）
+  - 合规：App Store订阅规范
+  - 集成方式：Native IAP SDK
+
+- **Android 平台**：Google Play Billing
+  - 支付方式：Google账户关联支付方式
+  - 货币：多货币支持（由Google处理）
+  - 合规：Play Store订阅规范
+  - 集成方式：Native Billing Library
 
 **插件化架构**:
 - 每个支付提供商实现统一接口
@@ -894,23 +907,34 @@ VibeBox 客户端是 happy-client 的**直接 fork 和合理定制**（非包装
 ┌──────────────────┐
 │后端创建支付订单   │ ← PaymentService.createOrder()
 └─────┬────────────┘
-      │ 调用对应Provider
+      │ 根据平台调用对应Provider
       ▼
 ┌──────────────────┐
 │返回支付信息       │
-│ - QR码URL (微信) │
-│ - Checkout URL   │
-│   (Stripe)       │
+│ - Stripe         │
+│   Checkout URL   │
+│ - Apple IAP      │
+│   Transaction ID │
+│ - Google Play    │
+│   Purchase Token │
 └─────┬────────────┘
       │
       ▼
 ┌──────────────────┐
 │用户完成支付       │
+│ - Web: 跳转Stripe│
+│ - iOS: IAP流程   │
+│ - Android: 订阅  │
 └─────┬────────────┘
       │
       ▼
 ┌──────────────────┐
-│支付提供商Webhook  │ ← 异步回调后端
+│支付回调/通知      │ ← 异步通知后端
+│ - Stripe Webhook │
+│ - App Store      │
+│   Notification   │
+│ - Google Play    │
+│   Notification   │
 └─────┬────────────┘
       │
       ▼
@@ -945,32 +969,31 @@ VibeBox 客户端是 happy-client 的**直接 fork 和合理定制**（非包装
 - 失败告警和人工介入
 
 **多提供商差异处理**:
-- **微信支付**: 返回QR码URL，用户扫码支付
-- **Stripe**: 返回Checkout页面URL，跳转支付
-- **支付宝**: 返回QR码URL或调起APP支付
+- **Stripe (Web)**: 返回Checkout页面URL，重定向到Stripe托管页面支付
+- **Apple IAP (iOS)**: 调起原生IAP流程，使用App Store订阅机制
+- **Google Play (Android)**: 调起原生Billing流程，使用Play Store订阅机制
 
-统一接口屏蔽差异，客户端根据返回类型展示不同UI
+统一接口屏蔽差异，客户端根据平台自动选择对应的支付方式
 
 #### 支付提供商能力映射
 
-| 能力 | 微信支付 | Stripe | 支付宝 |
-|------|---------|--------|--------|
-| QR码支付 | ✅ | ❌ | ✅ |
-| 网页跳转 | ❌ | ✅ | ✅ |
-| APP内支付 | ✅ | ✅ | ✅ |
-| 订阅模式 | ❌ (手动) | ✅ | ❌ (手动) |
-| Webhook回调 | ✅ | ✅ | ✅ |
+| 能力 | Stripe (Web) | Apple IAP (iOS) | Google Play (Android) |
+|------|-------------|----------------|----------------------|
+| 重定向支付 | ✅ | ❌ | ❌ |
+| 原生支付 | ❌ | ✅ | ✅ |
+| 订阅续费 | ✅ (自动) | ✅ (自动) | ✅ (自动) |
+| Webhook回调 | ✅ | ✅ (Server Notification) | ✅ (Developer Notification) |
 | 签名验证 | ✅ | ✅ | ✅ |
-
-**Note**: 中国市场暂不支持自动订阅续费，需要每月手动支付（支付监管限制）
+| 平台抽成 | ~3% | 15-30% | 15-30% |
+| 退款处理 | ✅ | ✅ (通过Apple) | ✅ (通过Google) |
 
 #### 设计优势
 
-- ✅ **多市场支持**：中国市场（微信/支付宝），国际市场（Stripe）
+- ✅ **多平台支持**：Web (Stripe)、iOS (Apple IAP)、Android (Google Play)
 - ✅ **易于扩展**：添加新支付方式无需修改核心逻辑
-- ✅ **统一处理**：Webhook回调标准化处理
+- ✅ **统一处理**：Webhook/通知回调标准化处理
 - ✅ **封装细节**：支付提供商特定逻辑封装在各自实现中
-- ✅ **灵活切换**：可根据用户地区自动选择支付方式
+- ✅ **自动续费**：所有平台均支持自动订阅续费
 
 ---
 
@@ -1000,7 +1023,7 @@ VibeBox 客户端是 happy-client 的**直接 fork 和合理定制**（非包装
 - **安全存储**: expo-secure-store 存储 token
 - **社交登录**: Google, Apple, GitHub 等
 - **企业级功能**: RBAC, MFA, 多租户支持
-- **订阅映射**: Logto 角色映射到订阅等级（free/pro/enterprise）
+- **订阅映射**: Logto 角色映射到订阅状态
 
 **实现细节**:
 - Token 验证: JWT 验证，使用 Logto JWKS endpoint
@@ -1008,9 +1031,8 @@ VibeBox 客户端是 happy-client 的**直接 fork 和合理定制**（非包装
 - Token 过期: Access token 1小时，refresh token 14天
 - CSRF 保护: Next.js 内置 + OIDC state parameter
 - RBAC 角色:
-  - `free`: 基础订阅用户
-  - `pro`: 专业订阅用户
-  - `enterprise`: 企业订阅用户
+  - `trial`: 试用期用户（3天）
+  - `pro`: VibeBox Pro 订阅用户（单一 SKU）
   - `admin`: 平台管理员
 
 **与 Happy Server 集成**:
@@ -1041,13 +1063,18 @@ DATABASE_URL=
 HAPPY_SERVER_URL=
 
 # Payment Providers
-WECHAT_PAY_MCHID=
-WECHAT_PAY_APPID=
-WECHAT_PAY_API_KEY=
+# Stripe (Web)
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
-ALIPAY_APP_ID=
-ALIPAY_PRIVATE_KEY=
+STRIPE_PUBLISHABLE_KEY=
+
+# Apple IAP (iOS)
+APPLE_IAP_SHARED_SECRET=
+APPLE_IAP_BUNDLE_ID=
+
+# Google Play (Android)
+GOOGLE_PLAY_PACKAGE_NAME=
+GOOGLE_PLAY_SERVICE_ACCOUNT_KEY=
 
 # Security
 ENCRYPTION_KEY=
@@ -1065,7 +1092,7 @@ SESSION_SECRET=
 | **数据库** | PostgreSQL | 可靠，成熟，良好的 Prisma 支持 |
 | **认证 (MVP)** | 用户名 + 密码 | 简单，快速实现，可后续迁移到 Logto |
 | **Happy 集成** | 零修改 | 使用官方 API，无需 fork |
-| **支付** | 插件化 (微信/Stripe/支付宝) | 多市场支持，中国优先（微信），国际后续（Stripe） |
+| **支付** | 插件化 (Stripe/Apple IAP/Google Play) | 多平台支持，Web (Stripe)，iOS (Apple IAP)，Android (Google Play) |
 | **部署** | TBD | Docker + 云服务商 (AWS/GCP/DigitalOcean) |
 
 ---
@@ -1104,10 +1131,11 @@ VibeBox 架构采用**资源池预配置**策略，业务层只负责**资源分
 │  │                                               │     │
 │  │ 每个 API Key 包含：                            │     │
 │  │  ✅ Claude API Key                            │     │
-│  │  ✅ 预设配额 (如 $20/月)                       │     │
-│  │  ✅ 使用统计                                   │     │
+│  │  ✅ 每日上限配置（Claude 后台设置）            │     │
+│  │  ✅ 用于防止极端滥用                           │     │
 │  │  ✅ 随时可分配给用户                            │     │
 │  │                                               │     │
+│  │ MVP 策略：前端不显示用量，"无忧使用"           │     │
 │  │ 状态：available | allocated | suspended       │     │
 │  └───────────────────────────────────────────────┘     │
 │                                                         │
@@ -1233,9 +1261,10 @@ model ApiKeyPool {
   id            String   @id @default(cuid())
   apiKey        String   @unique  // Encrypted
 
-  // Quota
-  monthlyQuota  Int      // In dollars (e.g., 20 = $20/month)
-  usedQuota     Int      @default(0)
+  // Quota Strategy (MVP: worry-free)
+  // API Key has daily limits configured in Claude backend
+  // MVP does not display usage numbers to users
+  dailyLimitConfigured  Boolean  @default(true)
 
   // Status
   status        String   // "available" | "allocated" | "suspended"
