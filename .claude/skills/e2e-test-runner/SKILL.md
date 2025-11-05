@@ -13,6 +13,27 @@ This skill helps you run and debug end-to-end tests for the Happy/VibeBox projec
 
 > **Note:** All commands in this document assume you are running from the project root directory.
 
+## Quick Start
+
+**To run web OAuth tests immediately:**
+
+1. Start all services: `docker compose up -d` (wait 30-60 seconds)
+2. Start Next.js: `cd server && yarn dev`
+3. Start Expo web: `cd client && EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005 EXPO_PUBLIC_API_URL=http://localhost:3003 yarn web`
+4. Run test: `cd client/tests/e2e/web && EXPO_PUBLIC_API_URL=http://localhost:3003 node oauth-authentication.test.js`
+
+## Docker Services Architecture
+
+All infrastructure is self-hosted via docker-compose:
+
+- **postgres** (5432) - Shared database for all services
+- **logto** (3001-3002) - OAuth authentication provider
+- **redis** (6379) - Cache and pub/sub for Happy Server
+- **minio** (9000-9001) - S3-compatible storage for Happy Server
+- **happy-server** (3005) - Self-hosted sync backend (no external dependency)
+
+Start all: `docker compose up -d`
+
 ## Platforms Supported
 
 - **Web**: Playwright-based OAuth authentication tests
@@ -35,16 +56,15 @@ Automatically activates when:
 
 Before running tests, ALWAYS verify:
 
-1. **Docker services** (Postgres + Logto) are running
+1. **Docker services** (Postgres + Logto + Redis + MinIO + Happy Server) are running
 2. **Next.js server** is running on correct port with correct env
 3. **Expo web client** is running with correct configuration
-4. **Happy Server** configuration is correct
 
 Use the `check-services.sh` script or manually verify:
 
 ```bash
-# Check Docker
-docker ps | grep -E "postgres|logto"
+# Check Docker services
+docker ps | grep -E "postgres|logto|redis|minio|happy-server"
 
 # Check Next.js server (should be on 3003)
 lsof -ti:3003
@@ -57,19 +77,28 @@ grep HAPPY_SERVER_URL server/.env.local
 ```
 
 **Expected configuration:**
-- Docker: localhost:3001 (Logto), localhost:3002 (Postgres)
-- Next.js: localhost:3003 with `HAPPY_SERVER_URL=https://api.cluster-fluster.com`
+- Docker services:
+  - Postgres: localhost:5432 (shared database)
+  - Logto: localhost:3001-3002 (auth service)
+  - Redis: localhost:6379 (cache/pub-sub)
+  - MinIO: localhost:9000-9001 (S3 storage)
+  - Happy Server: localhost:3005 (self-hosted sync backend)
+- Next.js: localhost:3003 with `HAPPY_SERVER_URL=http://localhost:3005`
 - Expo web: localhost:8081 with `EXPO_PUBLIC_API_URL=http://localhost:3003`
-- Happy Server: https://api.cluster-fluster.com (default, DON'T override)
+- Happy Server: localhost:3005 (self-hosted, NO external dependency)
 
 ### Step 2: Start Missing Services
 
 If services are not running, start them in correct order:
 
 ```bash
-# 1. Start Docker (if needed)
-cd docker
+# 1. Start ALL Docker services (if needed)
+# This includes: Postgres, Logto, Redis, MinIO, and Happy Server
 docker compose up -d
+
+# Wait for all services to be healthy (30-60 seconds)
+# Watch for: postgres, logto, redis, minio, happy-server
+docker ps
 
 # 2. Start Next.js server (if needed)
 cd server
@@ -77,12 +106,14 @@ yarn dev
 
 # 3. Start Expo web with correct env (if needed)
 cd client
-EXPO_PUBLIC_API_URL=http://localhost:3003 yarn web
+EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005 EXPO_PUBLIC_API_URL=http://localhost:3003 yarn web
 ```
 
 **CRITICAL**:
-- NEVER set `EXPO_PUBLIC_HAPPY_SERVER_URL` - let it use the default official URL
+- ALL infrastructure is now self-hosted in Docker
+- ALWAYS set `EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005` for self-hosted Happy Server
 - ALWAYS set `EXPO_PUBLIC_API_URL=http://localhost:3003` for local testing
+- Server MUST have `HAPPY_SERVER_URL=http://localhost:3005` in `.env.local`
 
 ### Step 3: Run the Test
 
@@ -133,10 +164,16 @@ See `TROUBLESHOOTING.md` for detailed error resolution.
 
 ### Client (Expo)
 - `EXPO_PUBLIC_API_URL` - VibeBox Platform API (set to `http://localhost:3003` for local dev)
-- `EXPO_PUBLIC_HAPPY_SERVER_URL` - Happy Server API (DON'T set, use default `https://api.cluster-fluster.com`)
+- `EXPO_PUBLIC_HAPPY_SERVER_URL` - Happy Server API (set to `http://localhost:3005` for self-hosted)
 
 ### Server (Next.js)
-- `HAPPY_SERVER_URL` - Happy Server API (set to `https://api.cluster-fluster.com` in `.env.local`)
+- `HAPPY_SERVER_URL` - Happy Server API (set to `http://localhost:3005` in `.env.local` for self-hosted)
+
+### Docker Services
+- Postgres: Shared database for Logto, VibeBox, and Happy Server
+- Redis: Cache and pub/sub for Happy Server
+- MinIO: S3-compatible storage for Happy Server
+- Happy Server: Self-hosted sync backend on port 3005
 
 ## Best Practices
 

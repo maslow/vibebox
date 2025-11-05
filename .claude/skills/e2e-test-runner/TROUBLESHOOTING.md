@@ -47,47 +47,47 @@ EXPO_PUBLIC_API_URL=http://localhost:3003 yarn web
 
 ---
 
-## Issue 2: CORS Errors on `/v1/*` Endpoints
+## Issue 2: Connection Errors to Happy Server
 
 **Symptoms:**
-- Browser console shows CORS errors
-- Errors specifically on paths like `/v1/account`, `/v1/challenge`, etc.
-- Error message: "No 'Access-Control-Allow-Origin' header"
-
-**Example Error:**
-```
-Access to fetch at 'http://localhost:3003/v1/account' from origin
-'http://localhost:8081' has been blocked by CORS policy
-```
+- 500 errors on Happy Server endpoints
+- "Connection refused" or "ECONNREFUSED" errors
+- Happy Server requests timing out
 
 **Root Cause:**
-Client is configured to send Happy Server API requests to localhost:3003, but these should go to the official Happy Server.
+Happy Server container is not running or not healthy.
 
 **Diagnosis:**
-Check if `EXPO_PUBLIC_HAPPY_SERVER_URL` is set incorrectly:
 ```bash
-# This is WRONG:
-EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3003
+docker ps | grep happy-server
+# Should show container as "healthy"
+
+# Check logs
+docker logs vibebox-happy-server
 ```
 
 **Solution:**
-DO NOT set `EXPO_PUBLIC_HAPPY_SERVER_URL` at all. The client should use the default.
+1. Ensure Happy Server is running:
+   ```bash
+   docker compose up -d happy-server
+   ```
+
+2. Wait for health check (30-60 seconds):
+   ```bash
+   docker ps | grep happy-server
+   # Look for "healthy" status
+   ```
+
+3. Verify it responds:
+   ```bash
+   curl http://localhost:3005/health
+   # Should return 200
+   ```
 
 **Architecture Explanation:**
 - **VibeBox Platform API** (`/api/*`) → localhost:3003 (Next.js server)
-- **Happy Server API** (`/v1/*`) → https://api.cluster-fluster.com (official external service)
-- These are TWO DIFFERENT servers
-
-**How to Fix:**
-1. Stop the Expo web client
-2. Start WITHOUT `EXPO_PUBLIC_HAPPY_SERVER_URL`:
-   ```bash
-   cd client
-   EXPO_PUBLIC_API_URL=http://localhost:3003 yarn web
-   ```
-3. Verify in browser console:
-   - `/api/*` requests go to localhost:3003 ✅
-   - `/v1/*` requests go to https://api.cluster-fluster.com ✅
+- **Happy Server API** (`/v1/*`) → proxied through Next.js to localhost:3005 (self-hosted)
+- Server MUST have `HAPPY_SERVER_URL=http://localhost:3005` in `.env.local`
 
 ---
 
@@ -208,14 +208,14 @@ cat server/.env.local | grep HAPPY_SERVER_URL
 
 Should output:
 ```
-HAPPY_SERVER_URL=https://api.cluster-fluster.com
+HAPPY_SERVER_URL=http://localhost:3005
 ```
 
 **Solution:**
 1. Edit `server/.env.local`
 2. Ensure it contains:
    ```
-   HAPPY_SERVER_URL=https://api.cluster-fluster.com
+   HAPPY_SERVER_URL=http://localhost:3005
    ```
 3. Restart Next.js server:
    ```bash
@@ -254,33 +254,40 @@ This is a timing issue, not a functional failure.
 
 When test fails, check in order:
 
-1. **Are all services running?**
+1. **Are all Docker services running and healthy?**
    ```bash
-   docker ps | grep logto                    # Should show logto
-   lsof -ti:3003                             # Should show PID
-   lsof -ti:8081                             # Should show PID
+   docker ps | grep -E "postgres|logto|redis|minio|happy-server"
+   # Should show 5 containers, all "healthy"
    ```
 
-2. **Is client env correct?**
+2. **Are application services running?**
+   ```bash
+   lsof -ti:3003                             # Next.js server
+   lsof -ti:8081                             # Expo web
+   ```
+
+3. **Is client env correct?**
    ```bash
    # Check what URL client is using
    # Look in client terminal output when it starts
    ```
    Should show `EXPO_PUBLIC_API_URL=http://localhost:3003`
 
-3. **Is server env correct?**
+4. **Is server env correct?**
    ```bash
    grep HAPPY_SERVER_URL server/.env.local
    ```
-   Should show `https://api.cluster-fluster.com`
+   Should show `http://localhost:3005`
 
-4. **Are there errors in test output?**
-   - Look for 404, 500, CORS errors
+5. **Are there errors in test output?**
+   - Look for 404, 500, connection errors
    - Check final URL (should be `/` not `/callback`)
 
-5. **Is Happy Server config correct?**
-   - Client should NOT have `EXPO_PUBLIC_HAPPY_SERVER_URL` set
-   - Should use default `https://api.cluster-fluster.com`
+6. **Is Happy Server responding?**
+   ```bash
+   curl http://localhost:3005/health
+   # Should return 200
+   ```
 
 ---
 
@@ -290,19 +297,22 @@ If everything is broken and you don't know why:
 
 ```bash
 # 1. Stop everything
-docker compose -f docker/docker-compose.yml down
+docker compose down
 # Kill any stray processes on 3003 and 8081
-lsof -ti:3003 | xargs kill -9
-lsof -ti:8081 | xargs kill -9
+lsof -ti:3003 | xargs kill -9 2>/dev/null || true
+lsof -ti:8081 | xargs kill -9 2>/dev/null || true
 
 # 2. Verify server env
 cat server/.env.local
-# Should have: HAPPY_SERVER_URL=https://api.cluster-fluster.com
+# Should have: HAPPY_SERVER_URL=http://localhost:3005
 
 # 3. Start fresh in correct order
-cd docker
 docker compose up -d
-sleep 15
+# Wait for all services to be healthy (30-60 seconds)
+sleep 60
+
+# Check all services are healthy
+docker ps | grep -E "postgres|logto|redis|minio|happy-server"
 
 cd server
 yarn dev

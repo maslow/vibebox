@@ -4,29 +4,38 @@
 
 Before running e2e tests, verify ALL of these requirements are met.
 
-## 1. Docker Services (Postgres + Logto)
+## 1. Docker Services (All Infrastructure)
 
 **Status Check:**
 ```bash
-docker ps | grep -E "postgres|logto"
+docker ps | grep -E "postgres|logto|redis|minio|happy-server"
 ```
 
 **Expected Output:**
-- Two containers running: `postgres` and `logto`
-- Logto should expose port 3001 (web UI) and 3002 (admin console)
-- Postgres should be accessible internally
+- Five containers running: `postgres`, `logto`, `redis`, `minio`, `happy-server`
+- Postgres: port 5432 (shared database)
+- Logto: ports 3001-3002 (auth service)
+- Redis: port 6379 (cache/pub-sub)
+- MinIO: ports 9000-9001 (S3 storage)
+- Happy Server: port 3005 (sync backend)
 
 **If Not Running:**
 ```bash
-cd ./docker
 docker compose up -d
 ```
 
-**Wait Time:** Give Logto ~10 seconds to fully initialize
+**Wait Time:**
+- Postgres: ~5 seconds
+- Redis: ~3 seconds
+- MinIO: ~10 seconds
+- Logto: ~10 seconds
+- Happy Server: ~30 seconds (depends on database migrations)
 
 **Verify:**
 - Browse to http://localhost:3001 - should show Logto sign-in page
 - Browse to http://localhost:3002 - should show Logto admin console
+- Browse to http://localhost:9001 - should show MinIO console
+- Check Happy Server: `curl http://localhost:3005/health` (should return 200)
 
 ---
 
@@ -53,12 +62,13 @@ cat server/.env.local | grep HAPPY_SERVER_URL
 
 **Expected Output:**
 ```
-HAPPY_SERVER_URL=https://api.cluster-fluster.com
+HAPPY_SERVER_URL=http://localhost:3005
 ```
 
 **CRITICAL:**
-- Server MUST have `HAPPY_SERVER_URL=https://api.cluster-fluster.com`
-- This tells the server to use official Happy Server for account operations
+- Server MUST have `HAPPY_SERVER_URL=http://localhost:3005`
+- This tells the server to use self-hosted Happy Server for account operations
+- NO external dependencies - everything runs locally
 
 **Verify:**
 - Browse to http://localhost:3003 - should show VibeBox landing page
@@ -79,13 +89,12 @@ lsof -ti:8081
 **If Not Running:**
 ```bash
 cd ./client
-EXPO_PUBLIC_API_URL=http://localhost:3003 yarn web
+EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005 EXPO_PUBLIC_API_URL=http://localhost:3003 yarn web
 ```
 
-**CRITICAL Environment Variable:**
-- MUST set `EXPO_PUBLIC_API_URL=http://localhost:3003`
-- This tells the client to call the local Next.js server
-- DO NOT set `EXPO_PUBLIC_HAPPY_SERVER_URL` - let it use default
+**CRITICAL Environment Variables:**
+- MUST set `EXPO_PUBLIC_API_URL=http://localhost:3003` - tells client to call local Next.js server
+- MUST set `EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005` - tells client to use self-hosted Happy Server
 
 **Verify:**
 - Browse to http://localhost:8081 - should show VibeBox app
@@ -94,23 +103,26 @@ EXPO_PUBLIC_API_URL=http://localhost:3003 yarn web
 
 ---
 
-## 4. Happy Server Configuration
+## 4. Happy Server (Self-Hosted)
 
-**No Action Needed** - This should be automatic!
+**Status:** Happy Server is now self-hosted in Docker!
 
-**What Should Happen:**
-- Client defaults to `https://api.cluster-fluster.com` for Happy Server
-- Server also uses `https://api.cluster-fluster.com` (set in `.env.local`)
+**What Changed:**
+- Happy Server runs locally at `http://localhost:3005`
+- NO external dependencies on official hosted instance
+- All data stays on your machine
+- Redis and MinIO provide required infrastructure
 
-**What NOT To Do:**
-- ❌ Do NOT set `EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3003`
-- ❌ Do NOT try to run Happy Server locally
-- ❌ Do NOT modify Happy Server URL in client code
+**Configuration:**
+- Server: `HAPPY_SERVER_URL=http://localhost:3005` in `.env.local`
+- Client: `EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005`
+- Docker: All services orchestrated together
 
-**Why:**
-- Happy Server is an external service (like GitHub API)
-- We use the official hosted instance
-- Local server is VibeBox Platform API, not Happy Server
+**Why Self-Host:**
+- More reliable for e2e tests (no network dependency)
+- Consistent test environment
+- Faster test execution
+- Complete control over test data
 
 ---
 
@@ -175,11 +187,16 @@ This script will:
 
 Before running tests, ensure:
 
-1. ✅ Docker (Postgres + Logto) - ports 3001-3002
-2. ✅ Next.js Server - port 3003, with `HAPPY_SERVER_URL=https://api.cluster-fluster.com`
+1. ✅ Docker (All infrastructure) - 5 services:
+   - Postgres: port 5432
+   - Logto: ports 3001-3002
+   - Redis: port 6379
+   - MinIO: ports 9000-9001
+   - Happy Server: port 3005
+2. ✅ Next.js Server - port 3003, with `HAPPY_SERVER_URL=http://localhost:3005`
 3. ✅ Expo Web - port 8081, with `EXPO_PUBLIC_API_URL=http://localhost:3003`
 
-That's it! If all three are running with correct configuration, tests should work.
+That's it! All infrastructure is self-hosted. No external dependencies.
 
 ---
 
@@ -189,14 +206,15 @@ That's it! If all three are running with correct configuration, tests should wor
 - Symptom: Client tries to connect to port 3000 instead of 3003
 - Fix: Restart client with `EXPO_PUBLIC_API_URL=http://localhost:3003`
 
-❌ **Setting `EXPO_PUBLIC_HAPPY_SERVER_URL` to localhost**
-- Symptom: CORS errors on `/v1/*` endpoints
-- Fix: Unset the variable, let it use default official URL
+❌ **Forgetting to set `EXPO_PUBLIC_HAPPY_SERVER_URL`**
+- Symptom: Client can't connect to self-hosted Happy Server
+- Fix: Restart client with `EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005`
 
-❌ **Server missing `HAPPY_SERVER_URL` in `.env.local`**
-- Symptom: Server tries to use wrong Happy Server URL
-- Fix: Add `HAPPY_SERVER_URL=https://api.cluster-fluster.com` to `server/.env.local`
+❌ **Server has wrong `HAPPY_SERVER_URL` in `.env.local`**
+- Symptom: Server can't connect to Happy Server
+- Fix: Set `HAPPY_SERVER_URL=http://localhost:3005` in `server/.env.local`
 
 ❌ **Docker services not fully started**
-- Symptom: Connection refused to Logto
-- Fix: Wait 10-15 seconds after `docker compose up`
+- Symptom: Connection refused to any service
+- Fix: Wait 30-60 seconds after `docker compose up` for all services to be healthy
+- Check: `docker ps` should show all 5 containers as "healthy"

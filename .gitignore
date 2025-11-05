@@ -88,3 +88,5 @@ test-screenshots/
 test-screenshots/
 client/maestro/screenshots/
 LLM_ENGINEERING.md
+client/tests/e2e/web/screenshots/
+client/test-results/.last-run.json

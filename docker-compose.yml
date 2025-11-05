@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  # PostgreSQL Database - Shared by Logto and VibeBox
+  # PostgreSQL Database - Shared by Logto, VibeBox, and Happy Server
   postgres:
     image: postgres:17-alpine
     container_name: vibebox-postgres
@@ -18,6 +18,43 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vibebox-network
+
+  # Redis - Cache and Pub/Sub for Happy Server
+  redis:
+    image: redis:7-alpine
+    container_name: vibebox-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - vibebox-network
+
+  # MinIO - S3-compatible storage for Happy Server
+  minio:
+    image: minio/minio:latest
+    container_name: vibebox-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"  # API port
+      - "9001:9001"  # Console port
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
       timeout: 5s
       retries: 5
     networks:
@@ -43,8 +80,46 @@ services:
     networks:
       - vibebox-network
 
+  # Happy Server - Self-hosted Happy sync backend
+  happy-server:
+    build:
+      context: .
+      dockerfile: docker/happy-server/Dockerfile
+    container_name: vibebox-happy-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "3005:3000"  # Map container port 3000 to host port 3005
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-vibebox_dev_password_2025}@postgres:5432/${HAPPY_DB_NAME:-happy}
+      HANDY_MASTER_SECRET: ${HANDY_MASTER_SECRET:-your-super-secret-key-for-development-only-change-in-production}
+      PORT: 3000
+      NODE_ENV: production
+      # Redis configuration
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # S3/MinIO configuration
+      S3_HOST: minio
+      S3_PORT: 9000
+      S3_USE_SSL: false
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      S3_BUCKET: happy
+      S3_PUBLIC_URL: http://localhost:9000/happy
+    networks:
+      - vibebox-network
+
 volumes:
   postgres_data:
+    driver: local
+  minio_data:
     driver: local
 
 networks:
