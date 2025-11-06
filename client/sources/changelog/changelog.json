@@ -1,57 +1,75 @@
 {
   "entries": [
     {
-      "version": 4,
-      "date": "2025-09-12",
-      "summary": "This release revolutionizes remote development with Codex integration and Daemon Mode, enabling instant AI assistance from anywhere. Start coding sessions with a single tap while maintaining complete control over your development environment.",
+      "version": 5,
+      "date": "2025-11-05",
+      "summary": "This update focuses on improving testing infrastructure and development workflows to ensure a more reliable and stable platform.",
       "changes": [
-        "Introduced Codex support for advanced AI-powered code completion and generation capabilities.",
-        "Implemented Daemon Mode as the new default, enabling instant remote session initiation without manual CLI startup.",
-        "Added one-click session launch from mobile devices, automatically connecting to your development machine.",
-        "Added ability to connect anthropic and gpt accounts to account"
+        "Added self-hosted Happy Server infrastructure for comprehensive end-to-end testing",
+        "Improved development documentation with upstream directory reference guide",
+        "Added OAuth troubleshooting guide to help resolve authentication issues faster",
+        "Enhanced AI-powered development workflow with context-first skill system",
+        "Improved code quality and maintainability with skill-curator agent"
       ],
-      "rawMarkdown": "## Version 4 - 2025-09-12\n\n\nThis release revolutionizes remote development with Codex integration and Daemon Mode, enabling instant AI assistance from anywhere. Start coding sessions with a single tap while maintaining complete control over your development environment.\n\n- Introduced Codex support for advanced AI-powered code completion and generation capabilities.\n- Implemented Daemon Mode as the new default, enabling instant remote session initiation without manual CLI startup.\n- Added one-click session launch from mobile devices, automatically connecting to your development machine.\n- Added ability to connect anthropic and gpt accounts to account"
+      "rawMarkdown": "## 2025-11-05\n\n\nThis update focuses on improving testing infrastructure and development workflows to ensure a more reliable and stable platform.\n\n- Added self-hosted Happy Server infrastructure for comprehensive end-to-end testing\n- Improved development documentation with upstream directory reference guide\n- Added OAuth troubleshooting guide to help resolve authentication issues faster\n- Enhanced AI-powered development workflow with context-first skill system\n- Improved code quality and maintainability with skill-curator agent"
+    },
+    {
+      "version": 4,
+      "date": "2025-10-29",
+      "summary": "This release brings a completely redesigned user interface with a modern tab-based navigation system, making it easier to manage your coding sessions and boxes.",
+      "changes": [
+        "Redesigned app interface with new Chats/Boxes/Me tab structure for better navigation",
+        "Added automated E2E testing workflow to ensure reliability and quality",
+        "Updated payment system to support multi-platform subscriptions (iOS, Android, Web)",
+        "Improved documentation with resource pool architecture details",
+        "Enhanced design documentation with Boxes branding alignment"
+      ],
+      "rawMarkdown": "## 2025-10-29\n\n\nThis release brings a completely redesigned user interface with a modern tab-based navigation system, making it easier to manage your coding sessions and boxes.\n\n- Redesigned app interface with new Chats/Boxes/Me tab structure for better navigation\n- Added automated E2E testing workflow to ensure reliability and quality\n- Updated payment system to support multi-platform subscriptions (iOS, Android, Web)\n- Improved documentation with resource pool architecture details\n- Enhanced design documentation with Boxes branding alignment"
     },
     {
       "version": 3,
-      "date": "2025-08-29",
-      "summary": "This update introduces seamless GitHub integration, bringing your developer identity directly into Happy while maintaining our commitment to privacy and security.",
+      "date": "2025-10-27",
+      "summary": "This update introduces critical improvements to authentication and user experience design, with enhanced auto-login functionality.",
       "changes": [
-        "Added GitHub account connection through secure OAuth authentication flow",
-        "Integrated profile synchronization displaying your GitHub avatar, name, and bio",
-        "Implemented encrypted token storage on our backend for additional security protection",
-        "Enhanced settings interface with personalized profile display when connected",
-        "Added one-tap GitHub disconnect functionality with confirmation protection",
-        "Improved account management with clear connection status indicators"
+        "Added required Happy auto-login with error blocking UI for better security",
+        "Updated core user experience design to version 2.0 with refined workflows",
+        "Improved page architecture with complete design documentation",
+        "Enhanced China Mobile Cloud provider integration with Portal Gateway support",
+        "Added multi-cloud provider support for flexible deployment options"
       ],
-      "rawMarkdown": "## Version 3 - 2025-08-29\n\n\nThis update introduces seamless GitHub integration, bringing your developer identity directly into Happy while maintaining our commitment to privacy and security.\n\n- Added GitHub account connection through secure OAuth authentication flow\n- Integrated profile synchronization displaying your GitHub avatar, name, and bio\n- Implemented encrypted token storage on our backend for additional security protection\n- Enhanced settings interface with personalized profile display when connected\n- Added one-tap GitHub disconnect functionality with confirmation protection\n- Improved account management with clear connection status indicators"
+      "rawMarkdown": "## 2025-10-27\n\n\nThis update introduces critical improvements to authentication and user experience design, with enhanced auto-login functionality.\n\n- Added required Happy auto-login with error blocking UI for better security\n- Updated core user experience design to version 2.0 with refined workflows\n- Improved page architecture with complete design documentation\n- Enhanced China Mobile Cloud provider integration with Portal Gateway support\n- Added multi-cloud provider support for flexible deployment options"
     },
     {
       "version": 2,
-      "date": "2025-06-26",
-      "summary": "This update focuses on seamless device connectivity, visual refinements, and intelligent voice interactions for an enhanced user experience.",
+      "date": "2025-10-23",
+      "summary": "This release establishes a comprehensive testing infrastructure and improves the overall development methodology with AI-first strategies.",
       "changes": [
-        "Added QR code authentication for instant and secure device linking across platforms",
-        "Introduced comprehensive dark theme with automatic system preference detection",
-        "Improved voice assistant performance with faster response times and reduced latency",
-        "Added visual indicators for modified files directly in the session list",
-        "Implemented preferred language selection for voice assistant supporting 15+ languages"
+        "Added end-to-end testing infrastructure with automated test workflows",
+        "Improved Logto OAuth authentication flow with better redirect handling",
+        "Enhanced documentation with semantic hashtags for easier navigation",
+        "Optimized hashtag system with improved AI agent capabilities",
+        "Added comprehensive Happy Server token lifecycle documentation",
+        "Consolidated E2E tests and improved test coverage"
       ],
-      "rawMarkdown": "## Version 2 - 2025-06-26\n\n\nThis update focuses on seamless device connectivity, visual refinements, and intelligent voice interactions for an enhanced user experience.\n\n- Added QR code authentication for instant and secure device linking across platforms\n- Introduced comprehensive dark theme with automatic system preference detection\n- Improved voice assistant performance with faster response times and reduced latency\n- Added visual indicators for modified files directly in the session list\n- Implemented preferred language selection for voice assistant supporting 15+ languages"
+      "rawMarkdown": "## 2025-10-23\n\n\nThis release establishes a comprehensive testing infrastructure and improves the overall development methodology with AI-first strategies.\n\n- Added end-to-end testing infrastructure with automated test workflows\n- Improved Logto OAuth authentication flow with better redirect handling\n- Enhanced documentation with semantic hashtags for easier navigation\n- Optimized hashtag system with improved AI agent capabilities\n- Added comprehensive Happy Server token lifecycle documentation\n- Consolidated E2E tests and improved test coverage"
     },
     {
       "version": 1,
-      "date": "2025-05-12",
-      "summary": "Welcome to Happy - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.",
+      "date": "2025-10-22",
+      "summary": "Welcome to the first release of VibeBox! This is a mobile-first AI coding platform built on the Happy open-source project. This initial release establishes the foundation of VibeBox with essential features for AI-powered mobile coding.",
       "changes": [
-        "Implemented end-to-end encrypted session management ensuring complete privacy",
-        "Integrated intelligent voice assistant with natural conversation capabilities",
-        "Added experimental file manager with syntax highlighting and tree navigation",
-        "Built seamless real-time synchronization across all your devices",
-        "Established native support for iOS, Android, and responsive web interfaces"
+        "Added Logto authentication integration for secure user login",
+        "Added Docker Compose development environment for easy local setup",
+        "Implemented complete project structure with Expo client and Next.js server",
+        "Added OAuth authentication support (GitHub, Google)",
+        "Created comprehensive documentation including PRD, white paper, and architecture decisions",
+        "Established project naming and branding (formerly \"Happy - Vibe Server\", now \"VibeBox\")",
+        "Added core mobile-first UI with happy-client integration",
+        "Implemented zero-modification solution architecture",
+        "Added complete architecture decision records (ADR 001, ADR 002)"
       ],
-      "rawMarkdown": "## Version 1 - 2025-05-12\n\n\nWelcome to Happy - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.\n\n- Implemented end-to-end encrypted session management ensuring complete privacy\n- Integrated intelligent voice assistant with natural conversation capabilities\n- Added experimental file manager with syntax highlighting and tree navigation\n- Built seamless real-time synchronization across all your devices\n- Established native support for iOS, Android, and responsive web interfaces"
+      "rawMarkdown": "## 2025-10-22\n\n\nWelcome to the first release of VibeBox! This is a mobile-first AI coding platform built on the Happy open-source project.\n\nThis initial release establishes the foundation of VibeBox with essential features for AI-powered mobile coding.\n\n- Added Logto authentication integration for secure user login\n- Added Docker Compose development environment for easy local setup\n- Implemented complete project structure with Expo client and Next.js server\n- Added OAuth authentication support (GitHub, Google)\n- Created comprehensive documentation including PRD, white paper, and architecture decisions\n- Established project naming and branding (formerly \"Happy - Vibe Server\", now \"VibeBox\")\n- Added core mobile-first UI with happy-client integration\n- Implemented zero-modification solution architecture\n- Added complete architecture decision records (ADR 001, ADR 002)\n\n---\n\n**Note:** VibeBox is currently in active development. Each release brings us closer to delivering a seamless mobile-first AI coding experience."
     }
   ],
-  "latestVersion": 4
+  "latestVersion": 5
 }
