@@ -312,7 +312,6 @@ function SessionInfoContent({ session }: { session: Session }) {
                             subtitle={(() => {
                                 const flavor = session.metadata.flavor || 'claude';
                                 if (flavor === 'claude') return 'Claude';
-                                if (flavor === 'gpt' || flavor === 'openai') return 'Codex';
                                 if (flavor === 'gemini') return 'Gemini';
                                 return flavor;
                             })()}

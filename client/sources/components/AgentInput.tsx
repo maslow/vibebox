@@ -56,7 +56,7 @@ interface AgentInputProps {
     };
     alwaysShowContextSize?: boolean;
     onFileViewerPress?: () => void;
-    agentType?: 'claude' | 'codex';
+    agentType?: 'claude';
     onAgentClick?: () => void;
     machineName?: string | null;
     onMachineClick?: () => void;
@@ -290,9 +290,6 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
     const screenWidth = useWindowDimensions().width;
 
     const hasText = props.value.trim().length > 0;
-    
-    // Check if this is a Codex session
-    const isCodex = props.metadata?.flavor === 'codex';
 
     // Calculate context warning
     const contextWarning = props.usageData?.contextSize
@@ -452,9 +449,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
             }
             // Handle Shift+Tab for permission mode switching
             if (event.key === 'Tab' && event.shiftKey && props.onPermissionModeChange) {
-                const modeOrder: PermissionMode[] = isCodex
-                    ? ['default', 'read-only', 'safe-yolo', 'yolo']
-                    : ['default', 'acceptEdits', 'plan', 'bypassPermissions'];
+                const modeOrder: PermissionMode[] = ['default', 'acceptEdits', 'plan', 'bypassPermissions'];
                 const currentIndex = modeOrder.indexOf(props.permissionMode || 'default');
                 const nextIndex = (currentIndex + 1) % modeOrder.length;
                 props.onPermissionModeChange(modeOrder[nextIndex]);
@@ -474,10 +469,8 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
             // Handle Cmd/Ctrl+M for model mode switching
             if (e.key === 'm' && (e.metaKey || e.ctrlKey) && props.onModelModeChange) {
                 e.preventDefault();
-                const modelOrder: ModelMode[] = isCodex
-                    ? ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default']
-                    : ['default', 'adaptiveUsage', 'sonnet', 'opus'];
-                const currentIndex = modelOrder.indexOf(props.modelMode || (isCodex ? 'gpt-5-codex-high' : 'default'));
+                const modelOrder: ModelMode[] = ['default', 'adaptiveUsage', 'sonnet', 'opus'];
+                const currentIndex = modelOrder.indexOf(props.modelMode || 'default');
                 const nextIndex = (currentIndex + 1) % modelOrder.length;
                 props.onModelModeChange(modelOrder[nextIndex]);
                 hapticsLight();
@@ -488,7 +481,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isCodex, props.modelMode, props.onModelModeChange]);
+    }, [props.modelMode, props.onModelModeChange]);
 
 
 
@@ -533,18 +526,10 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                 {/* Permission Mode Section */}
                                 <View style={styles.overlaySection}>
                                     <Text style={styles.overlaySectionTitle}>
-                                        {isCodex ? t('agentInput.codexPermissionMode.title') : t('agentInput.permissionMode.title')}
+                                        {t('agentInput.permissionMode.title')}
                                     </Text>
-                                    {(isCodex 
-                                        ? (['default', 'read-only', 'safe-yolo', 'yolo'] as const)
-                                        : (['default', 'acceptEdits', 'plan', 'bypassPermissions'] as const)
-                                    ).map((mode) => {
-                                        const modeConfig = isCodex ? {
-                                            'default': { label: t('agentInput.codexPermissionMode.default') },
-                                            'read-only': { label: t('agentInput.codexPermissionMode.readOnly') },
-                                            'safe-yolo': { label: t('agentInput.codexPermissionMode.safeYolo') },
-                                            'yolo': { label: t('agentInput.codexPermissionMode.yolo') },
-                                        } : {
+                                    {(['default', 'acceptEdits', 'plan', 'bypassPermissions'] as const).map((mode) => {
+                                        const modeConfig = {
                                             default: { label: t('agentInput.permissionMode.default') },
                                             acceptEdits: { label: t('agentInput.permissionMode.acceptEdits') },
                                             plan: { label: t('agentInput.permissionMode.plan') },
@@ -614,22 +599,10 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         paddingBottom: 4,
                                         ...Typography.default('semiBold')
                                     }}>
-                                        {isCodex ? t('agentInput.codexModel.title') : t('agentInput.model.title')}
+                                        {t('agentInput.model.title')}
                                     </Text>
-                                    {(isCodex 
-                                        ? (['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default', 'gpt-5-minimal', 'gpt-5-low', 'gpt-5-medium', 'gpt-5-high'] as const)
-                                        : (['default', 'adaptiveUsage', 'sonnet', 'opus'] as const)
-                                    ).map((model) => {
-                                        const modelConfig = isCodex ? {
-                                            'gpt-5-codex-high': { label: t('agentInput.codexModel.gpt5CodexHigh') },
-                                            'gpt-5-codex-medium': { label: t('agentInput.codexModel.gpt5CodexMedium') },
-                                            'gpt-5-codex-low': { label: t('agentInput.codexModel.gpt5CodexLow') },
-                                            'default': { label: t('agentInput.model.default') },
-                                            'gpt-5-minimal': { label: t('agentInput.codexModel.gpt5Minimal') },
-                                            'gpt-5-low': { label: t('agentInput.codexModel.gpt5Low') },
-                                            'gpt-5-medium': { label: t('agentInput.codexModel.gpt5Medium') },
-                                            'gpt-5-high': { label: t('agentInput.codexModel.gpt5High') },
-                                        } : {
+                                    {(['default', 'adaptiveUsage', 'sonnet', 'opus'] as const).map((model) => {
+                                        const modelConfig = {
                                             default: { label: t('agentInput.model.default') },
                                             adaptiveUsage: { label: t('agentInput.model.adaptiveUsage') },
                                             sonnet: { label: t('agentInput.model.sonnet') },
@@ -637,7 +610,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         };
                                         const config = modelConfig[model as keyof typeof modelConfig];
                                         if (!config) return null;
-                                        const isSelected = props.modelMode === model || (isCodex && model === 'gpt-5-codex-high' && !props.modelMode) || (!isCodex && model === 'default' && !props.modelMode);
+                                        const isSelected = props.modelMode === model || (model === 'default' && !props.modelMode);
 
                                         return (
                                             <Pressable
@@ -736,23 +709,13 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     color: props.permissionMode === 'acceptEdits' ? theme.colors.permission.acceptEdits :
                                         props.permissionMode === 'bypassPermissions' ? theme.colors.permission.bypass :
                                             props.permissionMode === 'plan' ? theme.colors.permission.plan :
-                                                props.permissionMode === 'read-only' ? theme.colors.permission.readOnly :
-                                                    props.permissionMode === 'safe-yolo' ? theme.colors.permission.safeYolo :
-                                                        props.permissionMode === 'yolo' ? theme.colors.permission.yolo :
-                                                            theme.colors.textSecondary, // Use secondary text color for default
+                                                theme.colors.textSecondary, // Use secondary text color for default
                                     ...Typography.default()
                                 }}>
-                                    {isCodex ? (
-                                        props.permissionMode === 'default' ? t('agentInput.codexPermissionMode.default') :
-                                            props.permissionMode === 'read-only' ? t('agentInput.codexPermissionMode.badgeReadOnly') :
-                                                props.permissionMode === 'safe-yolo' ? t('agentInput.codexPermissionMode.badgeSafeYolo') :
-                                                    props.permissionMode === 'yolo' ? t('agentInput.codexPermissionMode.badgeYolo') : ''
-                                    ) : (
-                                        props.permissionMode === 'default' ? t('agentInput.permissionMode.default') :
-                                            props.permissionMode === 'acceptEdits' ? t('agentInput.permissionMode.badgeAcceptAllEdits') :
-                                                props.permissionMode === 'bypassPermissions' ? t('agentInput.permissionMode.badgeBypassAllPermissions') :
-                                                    props.permissionMode === 'plan' ? t('agentInput.permissionMode.badgePlanMode') : ''
-                                    )}
+                                    {props.permissionMode === 'default' ? t('agentInput.permissionMode.default') :
+                                        props.permissionMode === 'acceptEdits' ? t('agentInput.permissionMode.badgeAcceptAllEdits') :
+                                            props.permissionMode === 'bypassPermissions' ? t('agentInput.permissionMode.badgeBypassAllPermissions') :
+                                                props.permissionMode === 'plan' ? t('agentInput.permissionMode.badgePlanMode') : ''}
                                 </Text>
                             )}
                         </View>
@@ -834,7 +797,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         fontWeight: '600',
                                         ...Typography.default('semiBold'),
                                     }}>
-                                        {props.agentType === 'claude' ? t('agentInput.agent.claude') : t('agentInput.agent.codex')}
+                                        {t('agentInput.agent.claude')}
                                     </Text>
                                 </Pressable>
                             )}

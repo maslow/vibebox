@@ -212,26 +212,7 @@ function NewSessionScreen() {
     // Agent selection
     //
 
-    const [agentType, setAgentType] = React.useState<'claude' | 'codex'>(() => {
-        // Check if agent type was provided in temp data
-        if (tempSessionData?.agentType) {
-            return tempSessionData.agentType;
-        }
-        // Initialize with last used agent if valid, otherwise default to 'claude'
-        if (lastUsedAgent === 'claude' || lastUsedAgent === 'codex') {
-            return lastUsedAgent;
-        }
-        return 'claude';
-    });
-
-    const handleAgentClick = React.useCallback(() => {
-        setAgentType(prev => {
-            const newAgent = prev === 'claude' ? 'codex' : 'claude';
-            // Save the new selection immediately
-            sync.applySettings({ lastUsedAgent: newAgent });
-            return newAgent;
-        });
-    }, []);
+    const agentType: 'claude' = 'claude';
 
     //
     // Permission and Model Mode selection
@@ -239,46 +220,23 @@ function NewSessionScreen() {
 
     const [permissionMode, setPermissionMode] = React.useState<PermissionMode>(() => {
         // Initialize with last used permission mode if valid, otherwise default to 'default'
-        const validClaudeModes: PermissionMode[] = ['default', 'acceptEdits', 'plan', 'bypassPermissions'];
-        const validCodexModes: PermissionMode[] = ['default', 'read-only', 'safe-yolo', 'yolo'];
+        const validModes: PermissionMode[] = ['default', 'acceptEdits', 'plan', 'bypassPermissions'];
 
-        if (lastUsedPermissionMode) {
-            if (agentType === 'codex' && validCodexModes.includes(lastUsedPermissionMode as PermissionMode)) {
-                return lastUsedPermissionMode as PermissionMode;
-            } else if (agentType === 'claude' && validClaudeModes.includes(lastUsedPermissionMode as PermissionMode)) {
-                return lastUsedPermissionMode as PermissionMode;
-            }
+        if (lastUsedPermissionMode && validModes.includes(lastUsedPermissionMode as PermissionMode)) {
+            return lastUsedPermissionMode as PermissionMode;
         }
         return 'default';
     });
 
     const [modelMode, setModelMode] = React.useState<ModelMode>(() => {
         // Initialize with last used model mode if valid, otherwise default
-        const validClaudeModes: ModelMode[] = ['default', 'adaptiveUsage', 'sonnet', 'opus'];
-        const validCodexModes: ModelMode[] = ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default', 'gpt-5-minimal', 'gpt-5-low', 'gpt-5-medium', 'gpt-5-high'];
+        const validModes: ModelMode[] = ['default', 'adaptiveUsage', 'sonnet', 'opus'];
 
-        if (lastUsedModelMode) {
-            if (agentType === 'codex' && validCodexModes.includes(lastUsedModelMode as ModelMode)) {
-                return lastUsedModelMode as ModelMode;
-            } else if (agentType === 'claude' && validClaudeModes.includes(lastUsedModelMode as ModelMode)) {
-                return lastUsedModelMode as ModelMode;
-            }
+        if (lastUsedModelMode && validModes.includes(lastUsedModelMode as ModelMode)) {
+            return lastUsedModelMode as ModelMode;
         }
-        return agentType === 'codex' ? 'gpt-5-codex-high' : 'default';
+        return 'default';
     });
-
-    // Reset permission and model modes when agent type changes
-    React.useEffect(() => {
-        if (agentType === 'codex') {
-            // Switch to codex-compatible modes
-            setPermissionMode('default');
-            setModelMode('gpt-5-codex-high');
-        } else {
-            // Switch to claude-compatible modes
-            setPermissionMode('default');
-            setModelMode('default');
-        }
-    }, [agentType]);
 
     const handlePermissionModeChange = React.useCallback((mode: PermissionMode) => {
         setPermissionMode(mode);
@@ -471,7 +429,6 @@ function NewSessionScreen() {
                     onSend={doCreate}
                     isSending={isSending}
                     agentType={agentType}
-                    onAgentClick={handleAgentClick}
                     machineName={selectedMachine?.metadata?.displayName || selectedMachine?.metadata?.host || null}
                     onMachineClick={handleMachineClick}
                     permissionMode={permissionMode}

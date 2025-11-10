@@ -187,42 +187,6 @@ export const SettingsView = React.memo(function SettingsView() {
     return (
 
         <ItemList style={{ paddingTop: 0 }}>
-            {/* App Info Header */}
-            <View style={{ maxWidth: layout.maxWidth, alignSelf: 'center', width: '100%' }}>
-                <View style={{ alignItems: 'center', paddingVertical: 24, backgroundColor: theme.colors.surface, marginTop: 16, borderRadius: 12, marginHorizontal: 16 }}>
-                    {profile.firstName ? (
-                        // Profile view: Avatar + name + version
-                        <>
-                            <View style={{ marginBottom: 12 }}>
-                                <Avatar
-                                    id={profile.id}
-                                    size={90}
-                                    imageUrl={avatarUrl}
-                                    thumbhash={profile.avatar?.thumbhash}
-                                />
-                            </View>
-                            <Text style={{ fontSize: 20, fontWeight: '600', color: theme.colors.text, marginBottom: bio ? 4 : 8 }}>
-                                {displayName}
-                            </Text>
-                            {bio && (
-                                <Text style={{ fontSize: 14, color: theme.colors.textSecondary, textAlign: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
-                                    {bio}
-                                </Text>
-                            )}
-                        </>
-                    ) : (
-                        // Logo view: Original logo + version
-                        <>
-                            <Image
-                                source={theme.dark ? require('@/assets/images/logotype-light.png') : require('@/assets/images/logotype-dark.png')}
-                                contentFit="contain"
-                                style={{ width: 300, height: 90, marginBottom: 12 }}
-                            />
-                        </>
-                    )}
-                </View>
-            </View>
-
             {/* Connect Terminal - Only show on native platforms */}
             {Platform.OS !== 'web' && (
                 <ItemGroup>
@@ -272,54 +236,6 @@ export const SettingsView = React.memo(function SettingsView() {
                     />
                 </ItemGroup>
             )}
-
-            {/* Support Us */}
-            <ItemGroup>
-                <Item
-                    title={t('settings.supportUs')}
-                    subtitle={isPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
-                    icon={<Ionicons name="heart" size={29} color="#FF3B30" />}
-                    showChevron={false}
-                    onPress={isPro ? undefined : handleSubscribe}
-                />
-            </ItemGroup>
-
-            <ItemGroup title={t('settings.connectedAccounts')}>
-                <Item
-                    title="Claude Code"
-                    subtitle={isAnthropicConnected
-                        ? t('settingsAccount.statusActive')
-                        : t('settings.connectAccount')
-                    }
-                    icon={
-                        <Image
-                            source={require('@/assets/images/icon-claude.png')}
-                            style={{ width: 29, height: 29 }}
-                            contentFit="contain"
-                        />
-                    }
-                    onPress={isAnthropicConnected ? handleDisconnectAnthropic : connectAnthropic}
-                    loading={connectingAnthropic || disconnectingAnthropic}
-                    showChevron={false}
-                />
-                <Item
-                    title={t('settings.github')}
-                    subtitle={isGitHubConnected
-                        ? t('settings.githubConnected', { login: profile.github?.login! })
-                        : t('settings.connectGithubAccount')
-                    }
-                    icon={
-                        <Ionicons
-                            name="logo-github"
-                            size={29}
-                            color={isGitHubConnected ? theme.colors.status.connected : theme.colors.textSecondary}
-                        />
-                    }
-                    onPress={isGitHubConnected ? handleDisconnectGitHub : connectGitHub}
-                    loading={connectingGitHub || disconnectingGitHub}
-                    showChevron={false}
-                />
-            </ItemGroup>
 
             {/* Social */}
             {/* <ItemGroup title={t('settings.social')}>
@@ -373,7 +289,7 @@ export const SettingsView = React.memo(function SettingsView() {
             )}
 
             {/* Features */}
-            <ItemGroup title={t('settings.features')}>
+            <ItemGroup>
                 <Item
                     title={t('settings.account')}
                     subtitle={t('settings.accountSubtitle')}
@@ -410,7 +326,7 @@ export const SettingsView = React.memo(function SettingsView() {
 
             {/* Developer */}
             {(__DEV__ || devModeEnabled) && (
-                <ItemGroup title={t('settings.developer')}>
+                <ItemGroup>
                     <Item
                         title={t('settings.developerTools')}
                         icon={<Ionicons name="construct-outline" size={29} color="#5856D6" />}
@@ -420,46 +336,7 @@ export const SettingsView = React.memo(function SettingsView() {
             )}
 
             {/* About */}
-            <ItemGroup title={t('settings.about')} footer={t('settings.aboutFooter')}>
-                <Item
-                    title={t('settings.whatsNew')}
-                    subtitle={t('settings.whatsNewSubtitle')}
-                    icon={<Ionicons name="sparkles-outline" size={29} color="#FF9500" />}
-                    onPress={() => router.push('/changelog')}
-                />
-                <Item
-                    title={t('settings.github')}
-                    icon={<Ionicons name="logo-github" size={29} color={theme.colors.text} />}
-                    detail="slopus/happy"
-                    onPress={handleGitHub}
-                />
-                <Item
-                    title={t('settings.reportIssue')}
-                    icon={<Ionicons name="bug-outline" size={29} color="#FF3B30" />}
-                    onPress={handleReportIssue}
-                />
-                <Item
-                    title={t('settings.privacyPolicy')}
-                    icon={<Ionicons name="shield-checkmark-outline" size={29} color="#007AFF" />}
-                    onPress={async () => {
-                        const url = 'https://happy.engineering/privacy/';
-                        const supported = await Linking.canOpenURL(url);
-                        if (supported) {
-                            await Linking.openURL(url);
-                        }
-                    }}
-                />
-                <Item
-                    title={t('settings.termsOfService')}
-                    icon={<Ionicons name="document-text-outline" size={29} color="#007AFF" />}
-                    onPress={async () => {
-                        const url = 'https://github.com/slopus/happy/blob/main/TERMS.md';
-                        const supported = await Linking.canOpenURL(url);
-                        if (supported) {
-                            await Linking.openURL(url);
-                        }
-                    }}
-                />
+            <ItemGroup>
                 {Platform.OS === 'ios' && (
                     <Item
                         title={t('settings.eula')}
