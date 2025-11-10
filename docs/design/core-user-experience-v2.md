@@ -147,7 +147,12 @@
 
 ---
 
-### VibeBox 导航结构：3 Tab
+### VibeBox 导航结构：2 Tab (MVP 简化版)
+
+> **📝 设计演进说明（2025-11-10）**
+>
+> 原设计为 3 Tab (Chats/Boxes/Me)，但 MVP 阶段简化为 2 Tab (Chats/Settings)，订阅管理整合到 Settings 内。
+> 详见：`boxes-tab-redesign.md` (Settings 整合方案)
 
 ```
 ┌─────────────────────────────────────────┐
@@ -158,8 +163,8 @@
 │                                         │
 │                                         │
 ├─────────────────────────────────────────┤
-│  💬        📦        👤                 │
-│ Chats     Boxes      Me                 │
+│  💬               ⚙️                    │
+│ Chats           Settings                │
 └─────────────────────────────────────────┘
 ```
 
@@ -168,30 +173,48 @@
 | Tab | 中文名 | 核心功能 | 参考对象 |
 |-----|-------|---------|---------|
 | 💬 **Chats** | 聊天 | 会话列表（多个 Claude Code 对话）<br>这是**核心主界面** | 微信"聊天"<br>WhatsApp "Chats" |
-| 📦 **Boxes** | 盒子 | VibeBox 实例列表<br>实例管理、SSH 信息、控制操作<br>用户购买的核心价值 | Discord "Servers"<br>Slack "Workspaces" |
-| 👤 **Me** | 我的 | 账户信息、订阅状态、账单、设置 | 微信"我"<br>Discord "You" |
+| ⚙️ **Settings** | 设置 | 账户信息、**订阅管理**、Machines、设置 | iOS Settings<br>Android Settings |
+
+**Settings 页面结构：**
+- 订阅管理（Subscription Management）← VibeBox 核心价值入口
+- Machines（现有的设备列表，显示所有 Boxes）
+- Connected Accounts（Claude、GitHub、Logto）
+- Features（账户、外观、语音助手等）
+- About（更新日志、隐私政策等）
 
 **设计原则：**
 - **Chats Tab 是默认主界面**（用户打开 App 直接看到）
-- **Boxes Tab 展示核心价值**（用户购买的是 VibeBox）
-- 其他 Tab 是辅助功能（账户设置）
-- 遵循主流消息应用的用户习惯（降低学习成本）
+- **订阅管理在 Settings 内突出显示**（用户购买的核心价值）
+- **Machines 展示所有 Boxes**（设备列表已有完整功能）
+- 遵循主流应用的用户习惯（大多数应用把订阅放在 Settings）
 
 ---
 
-### 为什么是 3 Tab 而不是更多？
+### 为什么 MVP 选择 2 Tab？
 
-**考虑过的方案：**
+**MVP 设计演进：**
+
+**原方案：3 Tab (Chats/Boxes/Me)**
+- ✅ 核心价值突出（Boxes 独立 tab）
+- ❌ 需要三栏布局（Web/Desktop）→ 实现成本过高
+- ❌ 大多数用户只有 1 Box → 独立 tab 显得空旷
+
+**新方案：2 Tab (Chats/Settings，订阅整合到 Settings)**
+- ✅ 实现成本低（保持现有两栏布局）
+- ✅ 符合行业标准（Netflix、Spotify 都在 Settings 管理订阅）
+- ✅ 简洁清晰（MVP 阶段 Simplicity > Features）
+- ⚠️ 订阅可见性稍降（但在 Settings 内突出显示）
+
+**考虑过的其他方案：**
 - ❌ 5 Tab（Dashboard/Session/Terminal/Inbox/Settings）→ 太复杂，分散注意力
-- ❌ 2 Tab（Chats/Me，Boxes 放在 Me 里）→ 核心价值被埋藏
 - ❌ 单页 + 侧边栏 → 移动端屏幕小，侧边栏体验差
-- ✅ **3 Tab（Chats/Boxes/Me）** → 极简、清晰、符合行业标准
+- ✅ **2 Tab（Chats/Settings）** → MVP 最佳平衡
 
-**3 Tab 的优势：**
-- ✅ 信息层次清晰（聊天 / 盒子 / 我）
-- ✅ 核心价值突出（Boxes 占据显著位置）
-- ✅ 符合用户习惯（参考微信、WhatsApp）
-- ✅ 移动端大拇指操作舒适
+**为什么这个"折衷"是合理的：**
+1. **订阅管理是低频操作**：用户设置一次后，月度/年度才改动
+2. **Machines 已有完整展示**：现有设备列表已展示所有 Boxes
+3. **Settings 是用户心智模型**："在哪管理订阅？" → "Settings"
+4. **可逐步演进**：如果多 Box 用户增长，未来可恢复独立 Boxes Tab
 
 ---
 

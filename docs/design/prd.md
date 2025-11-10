@@ -6,9 +6,12 @@ VibeBox PRD
 
 **核心术语：**
 - **Box / VibeBox**: 用户订阅的完整开发环境（包含预配置服务器 + Claude API Key）
-- **Boxes**: 移动端 Tab 名称，用户的 VibeBox 列表管理界面（等同于"我的 Boxes"）
+- **Machines**: Settings 中的设备列表区块，显示和管理用户的所有 VibeBoxes
+- **Subscription Management**: Settings 中的订阅管理区块，用于购买和管理 VibeBox 订阅
 - **服务器/实例**: 技术层面的云服务器资源（从资源池分配，已预配置）
 - **资源池**: 预配置的服务器和 API Key 库存，业务层从池中分配资源给用户
+
+> **注：** MVP 版本已简化导航结构为 2 Tab (Chats/Settings)，Box 管理功能整合到 Settings → Machines。详见 `boxes-tab-redesign.md`。
 
 ---
 
@@ -18,9 +21,9 @@ VibeBox PRD
 
 1. **发现与试用：** 独立开发者（首要用户）发现了 VibeBox，打开 App 后自动创建匿名账户，立即获得 3 天免费试用。
 2. **核心编码（移动优先）：** 用户在移动设备上直接通过"聊天会话"界面（Chats Tab）开始与 `claude code` 对话，在通勤路上快速验证自己的 AI 创意，无忧使用 API。
-3. **Box 管理：** 用户需要重启服务，于是在 Boxes Tab 点击了"重启"按钮。
+3. **Box 管理：** 用户需要重启服务，于是进入 Settings → Machines，点击了"重启"按钮。
 4. **决定订阅：** 3 天试用期快结束，用户觉得好用，决定订阅 VibeBox Pro。
-5. **订阅与支付：** 用户选择订阅周期（月付 $24 或年付 $192），通过 Stripe（Web）、Apple IAP（iOS）或 Google Play（Android）成功支付。
+5. **订阅与支付：** 用户在 Settings → Subscription Management 选择订阅周期（月付 $24 或年付 $192），通过 Stripe（Web）、Apple IAP（iOS）或 Google Play（Android）成功支付。
 6. **账户绑定（可选）：** 订阅后，用户可以选择绑定手机号/邮箱/OAuth 账号，避免丢失数据。
 7. **自动交付（秒级）：** 后台系统监听到支付成功，从资源池分配一个预配置的 Box（已安装 Vibe 环境、Web 栈和 Claude API Key），立即可用（<30秒）。
 8. **继续编码：** 用户无缝继续使用，数据保留，继续无忧使用 AI 编码功能。
@@ -28,12 +31,12 @@ VibeBox PRD
 ### 旅程 B：直接订阅（传统流程）
 
 1. **发现与注册：** 用户发现 VibeBox，选择使用 GitHub/Google 或手机号快速注册账户。
-2. **订阅与支付：** 用户选择订阅周期（月付 $24 或年付 $192），通过 Stripe（Web）、Apple IAP（iOS）或 Google Play（Android）支付。
+2. **订阅与支付：** 用户在 Settings → Subscription Management 选择订阅周期（月付 $24 或年付 $192），通过 Stripe（Web）、Apple IAP（iOS）或 Google Play（Android）支付。
 3. **自动交付（秒级）：** 后台从资源池分配预配置的 Box（<30秒）。
 4. **核心编码（移动优先）：** 用户在移动 App 的 Chats Tab 开始与 `claude code` 对话，无忧使用 API。
-5. **Box 管理：** 在 Boxes Tab 管理 Box 生命周期（启动/停止/重启）。
-6. **高级访问（Fallback）：** 用户希望安装新工具，从 Boxes Tab 复制 IP 和 Root 密码，通过本地 SSH 登录服务器。
-7. **服务支持：** 月底，用户通过邮件联系 `support@...` 申请取消订阅。
+5. **Box 管理：** 在 Settings → Machines 管理 Box 生命周期（启动/停止/重启）。
+6. **高级访问（Fallback）：** 用户希望安装新工具，从 Settings → Machines 复制 IP 和 Root 密码，通过本地 SSH 登录服务器。
+7. **服务支持：** 月底，用户通过 Settings → Subscription Management 或邮件联系 `support@...` 申请取消订阅。
 
 ---
 
